@@ -193,6 +193,9 @@ III_side_info_t III_side_info;
 
     sample_frames = 0;
 
+    /* MP3 files typically have an ID3v2 tag at the beginning */
+    skip_id3(&bs);
+
     while (!end_bs(&bs)) {
 
        sync = seek_sync(&bs, SYNC_WORD, SYNC_WORD_LNGTH);

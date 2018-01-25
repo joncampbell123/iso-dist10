@@ -1422,3 +1422,31 @@ int N;
    buf_byte_idx -= N;
 }
 
+void skip_id3(bs)
+Bit_stream_struc *bs;
+{
+    char tmp[10];
+
+    fseek(bs->pt,0,SEEK_SET);
+
+    memset(tmp,0,sizeof(tmp));
+    fread(tmp,10,1,bs->pt);
+
+    fprintf(stderr,"ID3 check at %ld\n",ftell(bs->pt));
+
+    if (!memcmp(tmp,"ID3",3) && (unsigned char)tmp[3] >= 2 && (unsigned char)tmp[3] != 0xFF && (unsigned char)tmp[4] != 0xFF &&
+        (unsigned char)tmp[6] <= 0x7F && (unsigned char)tmp[7] <= 0x7F && (unsigned char)tmp[8] <= 0x7F && (unsigned char)tmp[9] <= 0x7F) {
+        unsigned long len =
+            ((unsigned char)tmp[6] << 21UL) +
+            ((unsigned char)tmp[7] << 14UL) +
+            ((unsigned char)tmp[8] <<  7UL) +
+            ((unsigned char)tmp[9] <<  0UL);
+
+        fprintf(stderr,"ID3v2.%u.%u tag detected, length=%lu, skipping\n",
+            (unsigned char)tmp[3],
+            (unsigned char)tmp[4],
+            len);
+
+        fseek(bs->pt,len,SEEK_SET);
+    }
+}
