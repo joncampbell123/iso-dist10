@@ -45,9 +45,7 @@ FILE *fi;
   unsigned int t,i,j,k,nn,x,y,n=0;
   unsigned int xl, yl, len;
   HUFFBITS h;
-  int	hsize;
   
-  hsize = sizeof(HUFFBITS)*8; 
   do {
       fgets(line,99,fi);
   } while ((line[0] == '#') || (line[0] < ' ') );

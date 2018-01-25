@@ -617,7 +617,7 @@ void SwapBytesInWords( short *loc, int words )
 
 int aiff_read_headers( FILE *file_ptr, IFF_AIFF *aiff_ptr )
 {
-    int i, chunkSize, subSize, sound_position;
+    int chunkSize, subSize, sound_position;
     
     if ( fseek(file_ptr, 0, SEEK_SET) != 0 )
         return -1;

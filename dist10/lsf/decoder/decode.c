@@ -188,7 +188,6 @@ frame_params *fr_ps;
 {
     int i,j;
     int stereo  = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
     int jsbound = fr_ps->jsbound;
     int b;
 
@@ -222,7 +221,6 @@ frame_params *fr_ps;
 {
     int i,j;
     int stereo = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
 
     for (i=0;i<SBLIMIT;i++) for (j=0;j<stereo;j++)
         if (!bit_alloc[j][i])
@@ -308,7 +306,6 @@ frame_params *fr_ps;
 {
     int i,j,k;
     int stereo = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
     int jsbound = fr_ps->jsbound;
     unsigned int s;
 
@@ -451,7 +448,6 @@ frame_params *fr_ps;
 {
     int i, nb, k;
     int stereo = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
 
     for (i=0;i<SBLIMIT;i++)
         for (k=0;k<stereo;k++)
@@ -484,7 +480,7 @@ unsigned int scale_index[2][3][SBLIMIT];
 frame_params *fr_ps;
 int x;
 {
-    int i,j,k;
+    int i,j;
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
 
@@ -502,9 +498,8 @@ double FAR fraction[2][3][SBLIMIT];
 unsigned int scale_index[2][3][SBLIMIT];
 frame_params *fr_ps;
 {
-    int i,j,k;
+    int i,j;
     int stereo = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
 
     for (i=0;i<SBLIMIT;i++) for (j=0;j<stereo;j++)
         fraction[j][0][i] *= multiple[scale_index[j][0][i]];
@@ -654,7 +649,6 @@ unsigned long *psampFrames;
 {
     int i,j,l;
     int stereo = fr_ps->stereo;
-    int sblimit = fr_ps->sblimit;
     static short int outsamp[1600];
     static long k = 0;
 
@@ -1027,7 +1021,7 @@ III_side_info_t *si;
 int gr, ch;
 frame_params *fr_ps;
 {
-short sfb, i,j,k, window;
+short i,j,k;
 short blocktypenumber, blocknumber;
 
 struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
@@ -1148,7 +1142,7 @@ III_side_info_t *si;
 int gr, ch;
 frame_params *fr_ps;
 {
-int sfb, i,k = 0, window;
+int sfb, k = 0, window;
 struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
  
      III_get_LSF_scale_data(scalefac, si, gr, ch, fr_ps);
@@ -1240,10 +1234,7 @@ frame_params *fr_ps;
    int region2Start;
    int sfreq;
    int currentBit, grBits;
-   my_gr_info *gi;
-   int bt = (*si).ch[ch].gr[gr].window_switching_flag && ((*si).ch[ch].gr[gr].block_type == 2);
 
-   gi = (my_gr_info *) &(*si).ch[ch].gr[gr];
    sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
    initialize_huffman();
 
@@ -1325,7 +1316,6 @@ frame_params *fr_ps;
 int ch;
 {
    int ss,sb,cb=0,sfreq;
-   int stereo = fr_ps->stereo;
    int next_cb_boundary, cb_begin, cb_width, sign;
 
    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
@@ -1500,8 +1490,7 @@ frame_params *fr_ps;
                    (fr_ps->header->mode_ext & 0x2); 
    int i_stereo = (fr_ps->header->mode == MPG_MD_JOINT_STEREO) &&
                   (fr_ps->header->mode_ext & 0x1);
-   int js_bound;  /* frequency line that marks the beggining of the zero part */  
-   int sfb,next_sfb_boundary;
+   int sfb;
    int i,j,sb,ss,ch;
    short is_pos[SBLIMIT*SSLIMIT]; 
    double is_ratio[SBLIMIT*SSLIMIT];
@@ -1833,7 +1822,7 @@ int block_type;
 /*                                                                  */
 /*------------------------------------------------------------------*/
 
-int     k,i,m,N,p;
+int     i,m,N,p;
 double  tmp[12],sum;
 static  double  win[4][36];
 static  int init=0;

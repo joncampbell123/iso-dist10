@@ -354,7 +354,7 @@ if (frameNum == 0 && Arguments.need_esps) {
 
              frame_start += main_data_slots(fr_ps);
              if (bytes_to_discard < 0) {
-         printf("Not enough main data to decode frame %d.  Frame discarded.\n", 
+         printf("Not enough main data to decode frame %ld.  Frame discarded.\n", 
                         frameNum - 1); break;
              }
              for (; bytes_to_discard > 0; bytes_to_discard--) hgetbits(8);
