@@ -1221,7 +1221,7 @@ void initialize_huffman() {
 huffman_initialized = TRUE;
 }
 
-III_hufman_decode(is, si, ch, gr, part2_start, fr_ps)
+void III_hufman_decode(is, si, ch, gr, part2_start, fr_ps)
 long int is[SBLIMIT][SSLIMIT];
 III_side_info_t *si;
 int gr, ch, part2_start;
@@ -1397,7 +1397,7 @@ int ch;
       }
 }
 
-III_reorder (xr, ro, gr_info, fr_ps) 
+void III_reorder (xr, ro, gr_info, fr_ps) 
 double xr[SBLIMIT][SSLIMIT]; 
 double ro[SBLIMIT][SSLIMIT]; 
 struct gr_info_s *gr_info;

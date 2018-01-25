@@ -124,7 +124,7 @@ int side_info_slots();
 
 /* Implementations */
 
-main(argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {
@@ -485,7 +485,7 @@ if (frameNum == 0 && Arguments.need_esps) {
        printf("\"%s\" has been written with AIFF header information\n",
               Arguments.decoded_file_name);
 
-    exit( 0 );
+    return 0;
 }
 
 static void usage(void)  /* print syntax & exit */
