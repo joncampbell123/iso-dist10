@@ -226,7 +226,7 @@ FILE	*fp;
 char	*p;
 int	n;
 {
-	while (!feof(fp) & n-- > 0)
+	while (!feof(fp) && n-- > 0)
 		*p++ = getc(fp);
 }
 
@@ -237,7 +237,7 @@ int	n;
 {
 	register char	*q = p;
 
-	while (!feof(fp) & n-- > 0)
+	while (!feof(fp) && n-- > 0)
 		*q++ = getc(fp);
 
 	for (q--; p < q; p++, q--){

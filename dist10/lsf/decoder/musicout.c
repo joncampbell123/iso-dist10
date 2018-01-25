@@ -341,7 +341,7 @@ if (frameNum == 0 && Arguments.need_esps) {
              for (; nSlots > 0; nSlots--)  /* read main data. */
                 hputbuf((unsigned int) getbits(&bs,8), 8);
 	     main_data_end = hsstell() / 8; /*of privious frame*/
-             if ( flush_main=(hsstell() % bitsPerSlot) ) { 
+             if ( (flush_main=(hsstell() % bitsPerSlot)) != 0 ) {
                 hgetbits((int)(bitsPerSlot - flush_main));
 		main_data_end ++;
 	     }
@@ -575,7 +575,7 @@ static void GetArguments(argc, argv,Arguments)
              if(i+1 < argc) nextArg = argv[i+1];
              else           nextArg = "";
              argUsed = 0;
-             while(c = *token++) {
+             while ((c = *token++) != 0) {
                 if(*token /* NumericQ(token) */) arg = token;
                 else                             arg = nextArg;
                 switch(c) {

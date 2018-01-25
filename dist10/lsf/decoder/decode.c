@@ -420,13 +420,13 @@ frame_params *fr_ps;
 #endif
 
             /* MSB inversion */
-            if (((sample[k][j][i] >> x-1) & 1) == 1)
+            if (((sample[k][j][i] >> (x - 1)) & 1) == 1)
                 fraction[k][j][i] = 0.0;
             else  fraction[k][j][i] = -1.0;
 
             /* Form a 2's complement sample */
-            fraction[k][j][i] += (double) (sample[k][j][i] & ((1<<x-1)-1)) /
-                (double) (1L<<x-1);
+            fraction[k][j][i] += (double) (sample[k][j][i] & ((1 << (x - 1)) - 1)) /
+                (double) (1L << (x - 1));
 
             /* Dequantize the sample */
             fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
@@ -453,14 +453,14 @@ frame_params *fr_ps;
         for (k=0;k<stereo;k++)
             if (bit_alloc[k][i]) {
                 nb = bit_alloc[k][i] + 1;
-                if (((sample[k][0][i] >> nb-1) & 1) == 1) fraction[k][0][i] = 0.0;
+                if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) fraction[k][0][i] = 0.0;
                 else fraction[k][0][i] = -1.0;
-                fraction[k][0][i] += (double) (sample[k][0][i] & ((1<<nb-1)-1)) /
-                    (double) (1L<<nb-1);
+                fraction[k][0][i] += (double) (sample[k][0][i] & ((1 << (nb - 1)) - 1)) /
+                    (double) (1L << (nb - 1));
 
                 fraction[k][0][i] =
-                    (double) (fraction[k][0][i]+1.0/(double)(1L<<nb-1)) *
-                        (double) (1L<<nb) / (double) ((1L<<nb)-1);
+                    (double) (fraction[k][0][i]+1.0/(double)(1L << (nb - 1))) *
+                        (double) (1L << nb) / (double) ((1L << nb) - 1);
             }
             else fraction[k][0][i] = 0.0;
 }
@@ -1548,7 +1548,7 @@ frame_params *fr_ps;
                   i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
                   for ( ; sb > 0; sb--)
                   {  is_pos[i] = (*scalefac)[1].s[j][sfb];
-                     if ( is_pos[i] != 7 )
+                     if ( is_pos[i] != 7 ) {
                          if( lsf )
                          {
                               III_i_stereo_k_values(is_pos[i],io,i,k);
@@ -1557,6 +1557,7 @@ frame_params *fr_ps;
                          {
                              is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
                          }
+                     }
                      i++;
                   }
                   sfb++;
@@ -1600,7 +1601,7 @@ frame_params *fr_ps;
                 {  sb = sfBandIndex[sfreq].l[sfb+1]-sfBandIndex[sfreq].l[sfb];
                    for ( ; sb > 0; sb--)
                    {  is_pos[i] = (*scalefac)[1].l[sfb];
-                      if ( is_pos[i] != 7 )
+                      if ( is_pos[i] != 7 ) {
                          if ( lsf )
                          {
                               III_i_stereo_k_values(is_pos[i],io,i,k);
@@ -1609,6 +1610,7 @@ frame_params *fr_ps;
                          {
                              is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
                          }
+                      }
                       i++;
                    }
                 }
@@ -1637,7 +1639,7 @@ frame_params *fr_ps;
                   i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
                   for ( ; sb > 0; sb--)
                   {  is_pos[i] = (*scalefac)[1].s[j][sfb];
-                     if ( is_pos[i] != 7 )
+                     if ( is_pos[i] != 7 ) {
                          if( lsf )
                          {
                               III_i_stereo_k_values(is_pos[i],io,i,k);
@@ -1646,6 +1648,7 @@ frame_params *fr_ps;
                          {
                              is_ratio[i] = tan( (double)is_pos[i] * (PI / 12));
                          }
+                     }
                      i++;
                   }
                   sfb++;
@@ -1690,7 +1693,7 @@ frame_params *fr_ps;
          {  sb = sfBandIndex[sfreq].l[sfb+1] - sfBandIndex[sfreq].l[sfb];
             for ( ; sb > 0; sb--)
             {  is_pos[i] = (*scalefac)[1].l[sfb];
-               if ( is_pos[i] != 7 )
+               if ( is_pos[i] != 7 ) {
                      if( lsf )
                      {
                            III_i_stereo_k_values(is_pos[i],io,i,k);
@@ -1699,6 +1702,7 @@ frame_params *fr_ps;
                      {
                           is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
                      }
+               }
                i++;
             }
          }

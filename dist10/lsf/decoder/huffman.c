@@ -322,8 +322,8 @@ int *w;
   
   if (error) { /* set x and y to a medium value as a simple concealment */
     printf("Illegal Huffman code in data.\n");
-    *x = (h->xlen-1 << 1);
-    *y = (h->ylen-1 << 1);
+    *x = ((h->xlen-1) << 1);
+    *y = ((h->ylen-1) << 1);
   }
 
   /* Process sign encodings for quadruples tables. */

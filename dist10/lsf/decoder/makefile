@@ -14,7 +14,7 @@
 ############################################################################
 
 # MODE= -O -DUNIX
-MODE= -g -DUNIX -Wall -Wno-parentheses
+MODE= -g -DUNIX -Wall
 #MODE= -DMSC60 -AH -Zi -Gt
 OBJ_SUFFIX=.o
 EXE_SUFFIX=
