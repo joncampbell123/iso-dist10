@@ -462,9 +462,6 @@ frame_params *fr_ps;
     int stereo = fr_ps->stereo;
     double orscale;
 
-    if (I_fscale[0] < 1)
-        I_dequantize_fscale_gen();
-
     /* The original code did a lot of overwrought sign bit vs fractional
      * scaling code. When you get down to it, the sample value is
      * bit_alloc[][] + 1 bits long, which you can treat as an integer

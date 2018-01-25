@@ -196,6 +196,8 @@ III_side_info_t III_side_info;
 
     sample_frames = 0;
 
+    I_dequantize_fscale_gen();
+
     /* MP3 files typically have an ID3v2 tag at the beginning */
     skip_id3(&bs);
 
