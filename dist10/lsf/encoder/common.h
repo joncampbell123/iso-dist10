@@ -138,6 +138,7 @@
 
 #ifdef  UNIX
 #include        <unistd.h>
+#include        <stdlib.h>
 #endif  /* UNIX */
 
 #ifdef __sgi
