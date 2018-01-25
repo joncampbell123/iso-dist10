@@ -65,20 +65,6 @@ OBJ_SUFFIX	= .o
 .c$(OBJ_SUFFIX):
 	$(CC) -c $(CFLAGS) $<
 
-###############################
-# Compiler flags for Indigo R4000
-# CC=gcc
-# ANSI-C (default), include debug info, allow profiling, full warnings
-# CFLAGS =  -g2 -p -fullwarn
-# CFLAGS =  -g2 -p
-# CFLAGS = -ansi -g2 -w2 -O0 
-# CFLAGS = -ansi -g2 -O0 
-# CFLAGS = -g2 -w2 -O0 -G 0 -v
-# CFLAGS = -Aa -g fur hp850a
-
-.c$(OBJ_SUFFIX):
-	$(CC) -c $(CFLAGS) $<
-
 ENCOBJS = encode$(OBJ_SUFFIX) common$(OBJ_SUFFIX) musicin$(OBJ_SUFFIX)\
 	subs$(OBJ_SUFFIX) psy$(OBJ_SUFFIX) tonal$(OBJ_SUFFIX)\
 	predisto$(OBJ_SUFFIX) lingual$(OBJ_SUFFIX) dyn_cross$(OBJ_SUFFIX)\
