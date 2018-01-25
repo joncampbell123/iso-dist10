@@ -100,14 +100,6 @@
 *
 ***********************************************************************/
 
-/* The following functions are in the file "musicout.c" */
-
-#ifdef   PROTO_ARGS
-static void   usage(void);
-#else
-static void   usage();
-#endif
-
 /* The following functions are in the file "decode.c" */
 
 #ifdef   PROTO_ARGS

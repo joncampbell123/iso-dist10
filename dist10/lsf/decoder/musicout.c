@@ -488,7 +488,7 @@ if (frameNum == 0 && Arguments.need_esps) {
     exit( 0 );
 }
 
-static void usage()  /* print syntax & exit */
+static void usage(void)  /* print syntax & exit */
 {
    fprintf(stderr,
       "usage: %s                         queries for all arguments, or\n",
