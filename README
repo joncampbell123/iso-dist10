@@ -1,0 +1,8 @@
+This is intended to be a cleanup and rework of the reference source code.
+
+If you need a reliable decoder for all your favorite MPEG audio files,
+don't use this code, use FFMPEG instead.
+
+However, this can be used to encode formats that FFMPEG does not have
+an encoder for, such as MPEG Layer I, or the multichannel extensions.
+
