@@ -2217,4 +2217,5 @@ test_inner_loop(double xr[2][2][576], int l3_enc[2][2][576], int max_bits,
     return bits;
 }
  
-#endif PERFORM 
+#endif /* PERFORM */
+
