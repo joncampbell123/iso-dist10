@@ -143,6 +143,9 @@ typedef double VE[2][HAN_SIZE];
     layer             info;
     FILE              *musicout;
     unsigned long     sample_frames;
+    unsigned long     lock_sampling_frequency = 0;
+    unsigned char     lock_version = 0;
+    signed char       lock_stereo = -1;
 
     int               i, j, k, stereo, done=FALSE, clip, sync; 
     int               error_protection, crc_error_count, total_error_count;
@@ -229,6 +232,9 @@ III_side_info_t III_side_info;
 		Max_gr = 2;
        }
 
+       if (lock_stereo < 0)
+           lock_stereo = stereo;
+
        error_protection = info.error_protection;
        crc_error_count = 0;
        total_error_count = 0;
@@ -244,6 +250,12 @@ if (frameNum == 0 && Arguments.need_esps) {
 
        fprintf(stderr, "{%4lu}", frameNum++); fflush(stderr); 
        if (error_protection) buffer_CRC(&bs, &old_crc);
+
+        if (lock_sampling_frequency == 0 && info.version != 0 && info.sampling_frequency != 3)
+            lock_sampling_frequency = info.sampling_frequency;
+
+        if (lock_version == 0)
+            lock_version = info.version;
 
        switch (info.lay) {
 
@@ -445,10 +457,11 @@ if (frameNum == 0 && Arguments.need_esps) {
     }
 
     if (Arguments.need_aiff) {
-       pcm_aiff_data.numChannels       = stereo;
+        /* sometimes the end of an MP3 results in a version/sampling_frequency combo that isn't valid */
+       pcm_aiff_data.numChannels       = lock_stereo;
        pcm_aiff_data.numSampleFrames   = sample_frames;
        pcm_aiff_data.sampleSize        = 16;
-       pcm_aiff_data.sampleRate        = s_freq[info.version][info.sampling_frequency]*1000;
+       pcm_aiff_data.sampleRate        = s_freq[lock_version][lock_sampling_frequency]*1000;
        pcm_aiff_data.sampleType        = IFF_ID_SSND;
        pcm_aiff_data.blkAlgn.offset    = 0;
        pcm_aiff_data.blkAlgn.blockSize = 0;
