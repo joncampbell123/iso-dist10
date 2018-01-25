@@ -29,7 +29,7 @@
 #include "huffman.h"
 #include "stdlib.h"
      
-HUFFBITS dmask = 1 << (sizeof(HUFFBITS)*8-1);
+HUFFBITS dmask = (HUFFBITS)1U << (HUFFBITS)((sizeof(HUFFBITS) * 8U) - 1U);
 unsigned int hs = sizeof(HUFFBITS)*8;
 
 struct huffcodetab ht[HTN];	/* array of all huffcodtable headers	*/
