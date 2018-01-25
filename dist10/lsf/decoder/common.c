@@ -205,11 +205,11 @@ FILE *f;
 }
 
 /***********************************************************************
-/*
-/* Read one of the data files ("alloc_*") specifying the bit allocation/
-/* quatization parameters for each subband in layer II encoding
-/*
-/**********************************************************************/
+ *
+ * Read one of the data files ("alloc_*") specifying the bit allocation/
+ * quatization parameters for each subband in layer II encoding
+ *
+ **********************************************************************/
 
 int read_bit_alloc(table, alloc)        /* read in table, return # subbands */
 int table;
@@ -253,11 +253,11 @@ al_table *alloc;
 }
 
 /***********************************************************************
-/*
-/* Using the decoded info the appropriate possible quantization per
-/* subband table is loaded
-/*
-/**********************************************************************/
+ *
+ * Using the decoded info the appropriate possible quantization per
+ * subband table is loaded
+ *
+ **********************************************************************/
 
 int pick_table(fr_ps)   /* choose table, load if necess, return # sb's */
 frame_params *fr_ps;

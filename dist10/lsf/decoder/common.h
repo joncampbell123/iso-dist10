@@ -82,13 +82,6 @@
 *
 ***********************************************************************/
 
-/* #define      UNIX            /* Unix conditional compile switch */
-/* #define      MACINTOSH       /* Macintosh conditional compile switch */
-/* #define      MS_DOS          /* IBM PC conditional compile switch */
-/* #define      MSC60           /* Compiled for MS_DOS with MSC v6.0 */
-/* #define      AIX             /* AIX conditional compile switch    */
-/* #define      CONVEX          /* CONVEX conditional compile switch */
-
 #if defined(MSC60) 
 #ifndef MS_DOS
 #define MS_DOS

@@ -92,18 +92,18 @@
 #include        "decoder.h"
 
 /********************************************************************
-/*
-/*        This part contains the MPEG I decoder for Layers I & II.
-/*
-/*********************************************************************/
+ *
+ *        This part contains the MPEG I decoder for Layers I & II.
+ *
+ *********************************************************************/
 
 /****************************************************************
-/*
-/*        For MS-DOS user (Turbo c) change all instance of malloc
-/*        to _farmalloc and free to _farfree. Compiler model hugh
-/*        Also make sure all the pointer specified are changed to far.
-/*
-/*****************************************************************/
+ *
+ *        For MS-DOS user (Turbo c) change all instance of malloc
+ *        to _farmalloc and free to _farfree. Compiler model hugh
+ *        Also make sure all the pointer specified are changed to far.
+ *
+ *****************************************************************/
 /* local functions definition */
 
 static void usage();
@@ -111,10 +111,10 @@ static void GetArguments();
   
 
 /*********************************************************************
-/*
-/* Core of the Layer II decoder.  Default layer is Layer II.
-/*
-/*********************************************************************/
+ *
+ * Core of the Layer II decoder.  Default layer is Layer II.
+ *
+ *********************************************************************/
 
 /* Global variable definitions for "musicout.c" */
 

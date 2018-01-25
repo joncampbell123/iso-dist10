@@ -111,19 +111,19 @@
 #include        "huffman.h"
 
 /***************************************************************
-/*
-/* This module contains the core of the decoder ie all the
-/* computational routines. (Layer I and II only)
-/* Functions are common to both layer unless
-/* otherwise specified.
-/*
-/***************************************************************/
+ *
+ * This module contains the core of the decoder ie all the
+ * computational routines. (Layer I and II only)
+ * Functions are common to both layer unless
+ * otherwise specified.
+ *
+ ***************************************************************/
 
 /*****************************************************************
-/*
-/* The following routines decode the system information
-/*
-/****************************************************************/
+ *
+ * The following routines decode the system information
+ *
+ ****************************************************************/
 
 /************ Layer I, Layer II & Layer III ******************/
 
@@ -148,12 +148,12 @@ frame_params *fr_ps;
 }
 
 /*******************************************************************
-/*
-/* The bit allocation information is decoded. Layer I
-/* has 4 bit per subband whereas Layer II is Ws and bit rate
-/* dependent.
-/*
-/********************************************************************/
+ *
+ * The bit allocation information is decoded. Layer I
+ * has 4 bit per subband whereas Layer II is Ws and bit rate
+ * dependent.
+ *
+ ********************************************************************/
 
 /**************************** Layer II *************/
 
@@ -201,16 +201,16 @@ frame_params *fr_ps;
 }
 
 /*****************************************************************
-/*
-/* The following two functions implement the layer I and II
-/* format of scale factor extraction. Layer I involves reading
-/* 6 bit per subband as scale factor. Layer II requires reading
-/* first the scfsi which in turn indicate the number of scale factors
-/* transmitted.
-/*    Layer I : I_decode_scale
-/*   Layer II : II_decode_scale
-/*
-/****************************************************************/
+ *
+ * The following two functions implement the layer I and II
+ * format of scale factor extraction. Layer I involves reading
+ * 6 bit per subband as scale factor. Layer II requires reading
+ * first the scfsi which in turn indicate the number of scale factors
+ * transmitted.
+ *    Layer I : I_decode_scale
+ *   Layer II : II_decode_scale
+ *
+ ****************************************************************/
 
 /************************** Layer I stuff ************************/
 
@@ -284,17 +284,17 @@ frame_params *fr_ps;
 }
 
 /**************************************************************
-/*
-/*   The following two routines take care of reading the
-/* compressed sample from the bit stream for both layer 1 and
-/* layer 2. For layer 1, read the number of bits as indicated
-/* by the bit_alloc information. For layer 2, if grouping is
-/* indicated for a particular subband, then the sample size has
-/* to be read from the bits_group and the merged samples has
-/* to be decompose into the three distinct samples. Otherwise,
-/* it is the same for as layer one.
-/*
-/**************************************************************/
+ *
+ *   The following two routines take care of reading the
+ * compressed sample from the bit stream for both layer 1 and
+ * layer 2. For layer 1, read the number of bits as indicated
+ * by the bit_alloc information. For layer 2, if grouping is
+ * indicated for a particular subband, then the sample size has
+ * to be read from the bits_group and the merged samples has
+ * to be decompose into the three distinct samples. Otherwise,
+ * it is the same for as layer one.
+ *
+ **************************************************************/
 
 /******************************* Layer I stuff ******************/
 
@@ -369,15 +369,15 @@ frame_params *fr_ps;
 }      
 
 /**************************************************************
-/*
-/*   Restore the compressed sample to a factional number.
-/*   first complement the MSB of the sample
-/*    for layer I :
-/*    Use s = (s' + 2^(-nb+1) ) * 2^nb / (2^nb-1)
-/*   for Layer II :
-/*   Use the formula s = s' * c + d
-/*
-/**************************************************************/
+ *
+ *   Restore the compressed sample to a factional number.
+ *   first complement the MSB of the sample
+ *    for layer I :
+ *    Use s = (s' + 2^(-nb+1) ) * 2^nb / (2^nb-1)
+ *   for Layer II :
+ *   Use the formula s = s' * c + d
+ *
+ **************************************************************/
 
 static double c[17] = { 1.33333333333, 1.60000000000, 1.14285714286,
                         1.77777777777, 1.06666666666, 1.03225806452,
@@ -466,11 +466,11 @@ frame_params *fr_ps;
 }
 
 /************************************************************
-/*
-/*   Restore the original value of the sample ie multiply
-/*    the fraction value by its scalefactor.
-/*
-/************************************************************/
+ *
+ *   Restore the original value of the sample ie multiply
+ *    the fraction value by its scalefactor.
+ *
+ ************************************************************/
 
 /************************* Layer II Stuff **********************/
 
@@ -506,18 +506,18 @@ frame_params *fr_ps;
 }
 
 /*****************************************************************
-/*
-/* The following are the subband synthesis routines. They apply
-/* to both layer I and layer II stereo or mono. The user has to
-/* decide what parameters are to be passed to the routines.
-/*
-/***************************************************************/
+ *
+ * The following are the subband synthesis routines. They apply
+ * to both layer I and layer II stereo or mono. The user has to
+ * decide what parameters are to be passed to the routines.
+ *
+ ***************************************************************/
 
 /*************************************************************
-/*
-/*   Pass the subband sample through the synthesis window
-/*
-/**************************************************************/
+ *
+ *   Pass the subband sample through the synthesis window
+ *
+ **************************************************************/
 
 /* create in synthesis filter */
 
@@ -537,10 +537,10 @@ double FAR filter[64][SBLIMIT];
 }
 
 /***************************************************************
-/*
-/*   Window the restored sample
-/*
-/***************************************************************/
+ *
+ *   Window the restored sample
+ *
+ ***************************************************************/
 
 /* read in synthesis window */
 
