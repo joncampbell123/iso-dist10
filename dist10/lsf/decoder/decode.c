@@ -499,8 +499,8 @@ frame_params *fr_ps;
     int i, nb, k;
     int stereo = fr_ps->stereo;
 
-    for (i=0;i<SBLIMIT;i++)
-        for (k=0;k<stereo;k++)
+    for (i=0;i<SBLIMIT;i++) {
+        for (k=0;k<stereo;k++) {
             if (bit_alloc[k][i]) {
                 nb = bit_alloc[k][i] + 1;
                 fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i],nb);
@@ -517,8 +517,11 @@ frame_params *fr_ps;
                 }
 #endif
             }
-            else
+            else {
                 fraction[k][0][i] = 0.0;
+            }
+        }
+    }
 }
 
 /************************************************************
