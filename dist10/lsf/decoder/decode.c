@@ -448,19 +448,50 @@ frame_params *fr_ps;
 {
     int i, nb, k;
     int stereo = fr_ps->stereo;
+    double step2,fscale,orscale;
+    int step1;
+
+    /* The original code did a lot of overwrought sign bit vs fractional
+     * scaling code. When you get down to it, the sample value is
+     * bit_alloc[][] + 1 bits long, which you can treat as an integer
+     * that you subtract 2 ^ (nb - 1) from to produce a signed sample value.
+     *
+     * I can only assume the overwrought implementation had something to
+     * do with early 1990s C compilers and signed integer vs float issues. --Jonathan C. */
 
     for (i=0;i<SBLIMIT;i++)
         for (k=0;k<stereo;k++)
             if (bit_alloc[k][i]) {
                 nb = bit_alloc[k][i] + 1;
-                if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) fraction[k][0][i] = 0.0;
-                else fraction[k][0][i] = -1.0;
-                fraction[k][0][i] += (double) (sample[k][0][i] & ((1 << (nb - 1)) - 1)) /
+
+                /* NTS: (sample[...] / (1 << (nb - 1))) + (1.0 / (1 << (nb - 1)))
+                 *
+                 *      can be more efficiently done as
+                 *
+                 *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
+
+                /* Faster implementation (Jon C) */
+                fscale = (((double)(1U << nb)) / ((1U << nb) - 1)) / (1U << (nb - 1));
+                step1 = sample[k][0][i] + 1 - (1 << (nb - 1));
+                step2 = step1 * fscale;
+
+                /* Original dist10 code */
+                if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) orscale = 0.0;
+                else orscale = -1.0;
+                orscale += (double) (sample[k][0][i] & ((1 << (nb - 1)) - 1)) /
                     (double) (1L << (nb - 1));
 
-                fraction[k][0][i] =
-                    (double) (fraction[k][0][i]+1.0/(double)(1L << (nb - 1))) *
-                        (double) (1L << nb) / (double) ((1L << nb) - 1);
+                orscale =
+                    (double) (orscale+1.0/(double)(1L << (nb - 1))) *
+                    (double) (1L << nb) / (double) ((1L << nb) - 1);
+
+                /* I want to know if results deviate too much */
+                if (fabs(orscale - step2) > 1e-11) {
+                    fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.9f\n",
+                            orscale,step2,orscale - step2);
+                }
+
+                fraction[k][0][i] = step2;
             }
             else fraction[k][0][i] = 0.0;
 }
