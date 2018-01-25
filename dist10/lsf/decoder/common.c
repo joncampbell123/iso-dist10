@@ -817,6 +817,8 @@ Bit_stream_struc *bs;   /* bit stream structure */
       }
 
     }
+
+   return 0;
 }
 
 static char *he = "0123456789ABCDEF";
