@@ -67,4 +67,4 @@ musicout$(EXE_SUFFIX) : $(DECOBJS)
 $(DECOBJS): common.h decoder.h makefile
 
 clean:
-	rm -f $(DECOBJS)
+	rm -f $(DECOBJS) musicout$(EXE_SUFFIX)
