@@ -1,0 +1,7 @@
+The code as far as I can tell is broken.
+
+The encoder appears to make invalid bitstreams, the decoder doesn't decode the bitstream.
+
+As far as I understand, the output of this encoder is supposed to be backwards
+compatible with the main standard (should play in FFMPEG without the multichannel output).
+
