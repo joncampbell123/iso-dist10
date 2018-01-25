@@ -58,7 +58,8 @@ $(PROGRAMD) : $(OBJSD) $(HEDS)
 	$(LN) -o $(PROGRAMD) $(MODE) $(LFLAG) $(OBJSD) $(LNEXTRA)
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJSD) $(PROGRAM)
 
 veryclean:
-	rm -f $(PROGRAM) $(OBJS)
+	rm -f $(PROGRAM) $(OBJSD) $(PROGRAM)
+
