@@ -71,7 +71,7 @@ $(PROGRAM) : $(OBJS) $(HEDS)
 	$(LN) -o $(PROGRAM) $(MODE) $(LFLAG) $(OBJS) $(LNEXTRA)
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(PROGRAM)
 
 veryclean:
 	rm -f $(PROGRAM) $(OBJS)
