@@ -64,7 +64,6 @@ main(int argc, char *argv[])
 char    file_name[50];
 int     i,j,c,disp,arg_count,config,aiff_mode;
 IFF_AIFF        aiff,*aiff_ptr;
-void    exit();
 int     pcm2aiff(),aiff2pcm();        
 
 	aiff_ptr=&aiff;
@@ -92,7 +91,7 @@ int     pcm2aiff(),aiff2pcm();
 	    printf("        RS ch file is <[input file]_rs.pcm>\n");
 	    printf("        C  ch file is <[input file]_c.pcm>\n");
 	    printf("        aiff  file is <[input file].aiff> or <[input file].aiff.ml>\n");
-	    exit();
+	    exit(1);
 	}
 	for(i=0;i<50;i++)
 	    file_name[i]=0;
@@ -140,7 +139,7 @@ int     pcm2aiff(),aiff2pcm();
 			break;
 		    default:
 			printf("	????\n");
-			exit();
+			exit(1);
 		    }
 		}
 	    }
@@ -176,7 +175,6 @@ char            buf0[2]={0,0};
 Chunk           FormChunk;
 CommonChunk     CommChunk;
 SoundDataChunk  SndDChunk;
-void            exit();
 
 #ifdef __MSDOS__
 long            lholder;
@@ -198,7 +196,7 @@ void            swab();
 	strcat( tmp_file_name,aiffFilenameSuffix); 
 	if(NULL==(file_ptr_aiff=fopen(tmp_file_name,"wb"))){
 		printf("        write file open error\n");
-		exit();
+		exit(1);
 	}
 
 	aiff_ptr->sampleSize=16;
@@ -387,7 +385,6 @@ Chunk           FormChunk;
 CommonChunk     CommChunk;
 SoundDataChunk  SndDChunk;
 identifier      ident;
-void            exit();
 
 IEEE_DBL        *p_dbl,dbl;
 
@@ -401,7 +398,7 @@ void            swab();
 	strcat( tmp_file_name,aiffFilenameSuffix); 
 	if(NULL==(file_ptr=fopen(tmp_file_name,"rb"))){
 	    printf("    read file open error\n");
-	    exit();
+	    exit(1);
 	}
 	if (fseek(file_ptr, 0, SEEK_SET) != 0)
 	    return(-1);

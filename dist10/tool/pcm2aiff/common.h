@@ -588,4 +588,5 @@ extern char           *new_ext(); /* 92-08-19 shn */
 
 #ifdef CONCAT
 Bit_stream_struc   bs_concat;	/*23/03/1995 JMZ Concat */
-#endif CONCAT
+#endif /* CONCAT */
+
