@@ -452,6 +452,12 @@ void I_dequantize_fscale_gen()
         I_fscale[nb] = (((double)(1U << nb)) / ((1U << nb) - 1)) / (1U << (nb - 1));
 }
 
+static inline double I_dequantize_one_sample(const unsigned int sample,const unsigned char nb) {
+    /* assume: nb >= 2 && nb <= 15 */
+    /* C compiler will multiply signed int by double and return double result */
+    return ((int)sample + 1 - ((int)(1 << (nb - 1)))) * I_fscale[nb];
+}
+
 void I_dequantize_sample(sample, fraction, bit_alloc, fr_ps)
 unsigned int FAR sample[2][3][SBLIMIT];
 unsigned int bit_alloc[2][SBLIMIT];
@@ -474,6 +480,7 @@ frame_params *fr_ps;
         for (k=0;k<stereo;k++)
             if (bit_alloc[k][i]) {
                 nb = bit_alloc[k][i] + 1;
+                fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i],nb);
 
                 /* NTS: (sample[...] / (1 << (nb - 1))) + (1.0 / (1 << (nb - 1)))
                  *
@@ -482,7 +489,6 @@ frame_params *fr_ps;
                  *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
 
                 /* Faster implementation (Jon C) */
-                fraction[k][0][i] = ((int)sample[k][0][i] + 1 - (1 << (nb - 1))) * I_fscale[nb];
 
                 /* Original dist10 code */
                 if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) orscale = 0.0;
