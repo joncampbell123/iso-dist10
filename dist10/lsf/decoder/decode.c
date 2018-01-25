@@ -440,7 +440,7 @@ frame_params *fr_ps;
 
 /***************************** Layer I stuff ***********************/
 
-double I_fscale[16] = {0}; /* sample values max out at 15 bits where (bit_alloc maxes out at 14) + 1 */
+static double I_fscale[16] = {0}; /* sample values max out at 15 bits where (bit_alloc maxes out at 14) + 1 */
 
 void I_dequantize_fscale_gen()
 {
