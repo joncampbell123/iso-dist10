@@ -469,7 +469,7 @@ static inline double I_dequantize_one_sample(const unsigned int sample,const uns
 static inline double I_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char nb) {
     double result;
 
-    /* The original code did a lot of overwrought sign bit vs fractional
+    /* This original code does a lot of overwrought sign bit vs fractional
      * scaling code. When you get down to it, the sample value is
      * bit_alloc[][] + 1 bits long, which you can treat as an integer
      * that you subtract 2 ^ (nb - 1) from to produce a signed sample value.
@@ -504,7 +504,7 @@ frame_params *fr_ps;
             if (bit_alloc[k][i]) {
                 nb = bit_alloc[k][i] + 1;
                 fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i],nb);
-
+#if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                 { /* I want to know if results deviate too much from the ORIGINAL reference source code */
                     double orscale = I_dequantize_one_sample_the_dist10_way(sample[k][0][i],nb);
 
@@ -515,8 +515,10 @@ frame_params *fr_ps;
                                 orscale - fraction[k][0][i]);
                     }
                 }
+#endif
             }
-            else fraction[k][0][i] = 0.0;
+            else
+                fraction[k][0][i] = 0.0;
 }
 
 /************************************************************
