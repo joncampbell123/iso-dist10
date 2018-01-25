@@ -452,10 +452,42 @@ void I_dequantize_fscale_gen()
         I_fscale[nb] = (((double)(1U << nb)) / ((1U << nb) - 1)) / (1U << (nb - 1));
 }
 
+/* Faster implementation (Jon C) */
 static inline double I_dequantize_one_sample(const unsigned int sample,const unsigned char nb) {
     /* assume: nb >= 2 && nb <= 15 */
     /* C compiler will multiply signed int by double and return double result */
+
+    /* NTS: (sample[...] / (1 << (nb - 1))) + (1.0 / (1 << (nb - 1)))
+     *
+     *      can be more efficiently done as
+     *
+     *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
     return ((int)sample + 1 - ((int)(1 << (nb - 1)))) * I_fscale[nb];
+}
+
+/* Original dist10 method, for checking */
+static inline double I_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char nb) {
+    double result;
+
+    /* The original code did a lot of overwrought sign bit vs fractional
+     * scaling code. When you get down to it, the sample value is
+     * bit_alloc[][] + 1 bits long, which you can treat as an integer
+     * that you subtract 2 ^ (nb - 1) from to produce a signed sample value.
+     *
+     * I can only assume the overwrought implementation had something to
+     * do with early 1990s C compilers and signed integer vs float issues. --Jonathan C. */
+
+    if (((sample >> (nb - 1)) & 1) == 1) result = 0.0;
+    else result = -1.0;
+
+    result += (double) (sample & ((1 << (nb - 1)) - 1)) /
+        (double) (1L << (nb - 1));
+
+    result =
+        (double) (result+1.0/(double)(1L << (nb - 1))) *
+        (double) (1L << nb) / (double) ((1L << nb) - 1);
+
+    return result;
 }
 
 void I_dequantize_sample(sample, fraction, bit_alloc, fr_ps)
@@ -466,15 +498,6 @@ frame_params *fr_ps;
 {
     int i, nb, k;
     int stereo = fr_ps->stereo;
-    double orscale;
-
-    /* The original code did a lot of overwrought sign bit vs fractional
-     * scaling code. When you get down to it, the sample value is
-     * bit_alloc[][] + 1 bits long, which you can treat as an integer
-     * that you subtract 2 ^ (nb - 1) from to produce a signed sample value.
-     *
-     * I can only assume the overwrought implementation had something to
-     * do with early 1990s C compilers and signed integer vs float issues. --Jonathan C. */
 
     for (i=0;i<SBLIMIT;i++)
         for (k=0;k<stereo;k++)
@@ -482,30 +505,15 @@ frame_params *fr_ps;
                 nb = bit_alloc[k][i] + 1;
                 fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i],nb);
 
-                /* NTS: (sample[...] / (1 << (nb - 1))) + (1.0 / (1 << (nb - 1)))
-                 *
-                 *      can be more efficiently done as
-                 *
-                 *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
+                { /* I want to know if results deviate too much from the ORIGINAL reference source code */
+                    double orscale = I_dequantize_one_sample_the_dist10_way(sample[k][0][i],nb);
 
-                /* Faster implementation (Jon C) */
-
-                /* Original dist10 code */
-                if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) orscale = 0.0;
-                else orscale = -1.0;
-                orscale += (double) (sample[k][0][i] & ((1 << (nb - 1)) - 1)) /
-                    (double) (1L << (nb - 1));
-
-                orscale =
-                    (double) (orscale+1.0/(double)(1L << (nb - 1))) *
-                    (double) (1L << nb) / (double) ((1L << nb) - 1);
-
-                /* I want to know if results deviate too much */
-                if (fabs(orscale - fraction[k][0][i]) > 1e-11) {
-                    fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.9f\n",
-                        orscale,
-                        fraction[k][0][i],
-                        orscale - fraction[k][0][i]);
+                    if (fabs(orscale - fraction[k][0][i]) > 1e-11) {
+                        fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.9f\n",
+                                orscale,
+                                fraction[k][0][i],
+                                orscale - fraction[k][0][i]);
+                    }
                 }
             }
             else fraction[k][0][i] = 0.0;
