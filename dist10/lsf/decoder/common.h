@@ -484,10 +484,14 @@ extern unsigned long  hgetbits(int);
 extern unsigned long  hsstell();
 extern void           hputbuf(unsigned int,int);
 extern void           rewindNbytes( int );
+extern void           rewindNbits(int N);
 enum byte_order DetermineByteOrder();
 void SwapBytesInWords( short *loc, int words );
 
-
+void III_get_LSF_scale_factors(III_scalefac_t *scalefac, III_side_info_t *si, int gr, int ch, frame_params *fr_ps);
+void III_hufman_decode(long int is[SBLIMIT][SSLIMIT], III_side_info_t *si, int gr, int ch, int part2_start, frame_params *fr_ps);
+void III_stereo(double xr[2][SBLIMIT][SSLIMIT],double lr[2][SBLIMIT][SSLIMIT],III_scalefac_t *scalefac,struct gr_info_s *gr_info,frame_params *fr_ps);
+void III_reorder(double xr[SBLIMIT][SSLIMIT],double ro[SBLIMIT][SSLIMIT],struct gr_info_s *gr_info,frame_params *fr_ps);
 
 #ifdef  MACINTOSH
 extern void           set_mac_file_attr(char[MAX_NAME_SIZE], short, OsType,
