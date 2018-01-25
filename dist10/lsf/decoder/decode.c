@@ -460,8 +460,7 @@ frame_params *fr_ps;
 {
     int i, nb, k;
     int stereo = fr_ps->stereo;
-    double step2,orscale;
-    int step1;
+    double orscale;
 
     if (I_fscale[0] < 1)
         I_dequantize_fscale_gen();
@@ -486,8 +485,7 @@ frame_params *fr_ps;
                  *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
 
                 /* Faster implementation (Jon C) */
-                step1 = sample[k][0][i] + 1 - (1 << (nb - 1));
-                step2 = step1 * I_fscale[nb];
+                fraction[k][0][i] = ((int)sample[k][0][i] + 1 - (1 << (nb - 1))) * I_fscale[nb];
 
                 /* Original dist10 code */
                 if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) orscale = 0.0;
@@ -500,12 +498,12 @@ frame_params *fr_ps;
                     (double) (1L << nb) / (double) ((1L << nb) - 1);
 
                 /* I want to know if results deviate too much */
-                if (fabs(orscale - step2) > 1e-11) {
+                if (fabs(orscale - fraction[k][0][i]) > 1e-11) {
                     fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.9f\n",
-                            orscale,step2,orscale - step2);
+                        orscale,
+                        fraction[k][0][i],
+                        orscale - fraction[k][0][i]);
                 }
-
-                fraction[k][0][i] = step2;
             }
             else fraction[k][0][i] = 0.0;
 }
