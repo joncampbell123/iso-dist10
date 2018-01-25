@@ -440,6 +440,18 @@ frame_params *fr_ps;
 
 /***************************** Layer I stuff ***********************/
 
+double I_fscale[16] = {0}; /* sample values max out at 15 bits where (bit_alloc maxes out at 14) + 1 */
+
+void I_dequantize_fscale_gen()
+{
+    unsigned int nb;
+
+    I_fscale[0] = I_fscale[1] = 1;
+
+    for (nb=2;nb < 16;nb++)
+        I_fscale[nb] = (((double)(1U << nb)) / ((1U << nb) - 1)) / (1U << (nb - 1));
+}
+
 void I_dequantize_sample(sample, fraction, bit_alloc, fr_ps)
 unsigned int FAR sample[2][3][SBLIMIT];
 unsigned int bit_alloc[2][SBLIMIT];
@@ -448,8 +460,11 @@ frame_params *fr_ps;
 {
     int i, nb, k;
     int stereo = fr_ps->stereo;
-    double step2,fscale,orscale;
+    double step2,orscale;
     int step1;
+
+    if (I_fscale[0] < 1)
+        I_dequantize_fscale_gen();
 
     /* The original code did a lot of overwrought sign bit vs fractional
      * scaling code. When you get down to it, the sample value is
@@ -471,9 +486,8 @@ frame_params *fr_ps;
                  *      (sample[...] + 1 - (1 << (nb - 1))) / (1 << (nb - 1)) */
 
                 /* Faster implementation (Jon C) */
-                fscale = (((double)(1U << nb)) / ((1U << nb) - 1)) / (1U << (nb - 1));
                 step1 = sample[k][0][i] + 1 - (1 << (nb - 1));
-                step2 = step1 * fscale;
+                step2 = step1 * I_fscale[nb];
 
                 /* Original dist10 code */
                 if (((sample[k][0][i] >> (nb - 1)) & 1) == 1) orscale = 0.0;
