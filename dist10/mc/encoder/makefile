@@ -48,8 +48,8 @@
 # Compiler flags for UNIX
 CC		= cc
 #CFLAGS		= -DUNIX -g2 -DAugmentation_7ch -DPrintCRCDebug -DPrintBitDebug -DPRINTOUT -DDEBUG
-#CFLAGS		= -DUNIX -g2 -DAugmentation_7ch -DPRINTOUT -DDEBUG
-CFLAGS		= -DUNIX -mips2 -O2
+CFLAGS		= -DUNIX -g2 -DAugmentation_7ch
+#CFLAGS		= -DUNIX -mips2 -O2
 LFLAGS		= -lm
 EXE_SUFFIX	=
 OBJ_SUFFIX	= .o
@@ -90,4 +90,4 @@ musicin$(EXE_SUFFIX) : $(ENCOBJS)
 $(ENCOBJS): common.h encoder.h makefile
 
 clean:
-	rm -f $(ENCOBJS)
+	rm -f $(ENCOBJS) musicin$(EXE_SUFFIX)
