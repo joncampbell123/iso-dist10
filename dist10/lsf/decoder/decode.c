@@ -589,10 +589,12 @@ void II_denormalize_sample(
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
 
-    for (i=0;i<sblimit;i++) for (j=0;j<stereo;j++) {
-        fraction[j][0][i] *= multiple[scale_index[j][x][i]];
-        fraction[j][1][i] *= multiple[scale_index[j][x][i]];
-        fraction[j][2][i] *= multiple[scale_index[j][x][i]];
+    for (i=0;i<sblimit;i++) {
+        for (j=0;j<stereo;j++) {
+            fraction[j][0][i] *= multiple[scale_index[j][x][i]];
+            fraction[j][1][i] *= multiple[scale_index[j][x][i]];
+            fraction[j][2][i] *= multiple[scale_index[j][x][i]];
+        }
     }
 }
 
