@@ -454,8 +454,8 @@ void II_dequantize_sample(
                             II_dequantize_one_sample_the_dist10_way(
                                 sample[k][j][i], alloc[bits].steps_as_bits, alloc[bits].quant);
 
-                        if (fabs(orscale - fraction[k][j][i]) > 1e-11) {
-                            fprintf(stderr,"Layer II reconstruction deviation: %.9f vs %.9f dev %.9f\n",
+                        if (fabs(orscale - fraction[k][j][i]) > 1e-12) {
+                            fprintf(stderr,"Layer II reconstruction deviation: %.9f vs %.9f dev %.13f\n",
                                     orscale,
                                     fraction[k][j][i],
                                     orscale - fraction[k][j][i]);
