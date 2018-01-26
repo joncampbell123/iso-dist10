@@ -437,7 +437,7 @@ void II_dequantize_sample(
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
     al_table *alloc = fr_ps->alloc;
-    unsigned char bits;
+    unsigned int bits;
 
     for (i=0;i<sblimit;i++) {
         for (j=0;j<3;j++) {
