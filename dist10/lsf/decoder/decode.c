@@ -849,9 +849,9 @@ unsigned long *psampFrames;
     }
 }
 
-void  buffer_CRC(bs, old_crc)
-Bit_stream_struc  *bs;
-unsigned int  *old_crc;
+void buffer_CRC(
+    Bit_stream_struc       *bs,
+    unsigned int           *old_crc)
 {
     *old_crc = getbits(bs, 16);
 }
