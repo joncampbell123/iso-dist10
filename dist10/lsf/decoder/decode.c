@@ -685,19 +685,20 @@ void I_denormalize_sample(
 
 /* create in synthesis filter */
 
-void create_syn_filter(filter)
-double FAR filter[64][SBLIMIT];
+void create_syn_filter(double FAR filter[64][SBLIMIT])
 {
     register int i,k;
 
-    for (i=0; i<64; i++)
+    for (i=0; i<64; i++) {
         for (k=0; k<32; k++) {
             if ((filter[i][k] = 1e9*cos((double)((PI64*i+PI4)*(2*k+1)))) >= 0)
                 modf(filter[i][k]+0.5, &filter[i][k]);
             else
                 modf(filter[i][k]-0.5, &filter[i][k]);
+
             filter[i][k] *= 1e-9;
         }
+    }
 }
 
 /***************************************************************
@@ -708,8 +709,7 @@ double FAR filter[64][SBLIMIT];
 
 /* read in synthesis window */
 
-void read_syn_window(window)
-double FAR window[HAN_SIZE];
+void read_syn_window(double FAR window[HAN_SIZE])
 {
     int i,j[4];
     FILE *fp;
@@ -720,10 +720,12 @@ double FAR window[HAN_SIZE];
         printf("Please check synthesis window table 'dewindow'\n");
         exit(1);
     }
+
     for (i=0;i<512;i+=4) {
         fgets(t, 150, fp);
         sscanf(t,"D[%d] = %lf D[%d] = %lf D[%d] = %lf D[%d] = %lf\n",
-               j, f,j+1,f+1,j+2,f+2,j+3,f+3);
+            j, f,j+1,f+1,j+2,f+2,j+3,f+3);
+
         if (i==j[0]) {
             window[i] = f[0];
             window[i+1] = f[1];
@@ -734,8 +736,10 @@ double FAR window[HAN_SIZE];
             printf("Check index in synthesis window table\n");
             exit(1);
         }
+
         fgets(t,150,fp);
     }
+
     fclose(fp);
 }
 
