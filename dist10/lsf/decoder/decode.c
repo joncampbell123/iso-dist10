@@ -442,15 +442,19 @@ frame_params *fr_ps;
                            ) && ( x < 16) ) x++;
 #endif
 
-                    fraction[k][j][i] = II_dequantize_one_sample_the_dist10_way(sample[k][j][i], x);
+                    fraction[k][j][i] = II_dequantize_one_sample(sample[k][j][i], x);
+#if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
+                    { /* I want to know if results deviate too much from the ORIGINAL reference source code */
+                        double orscale = II_dequantize_one_sample_the_dist10_way(sample[k][j][i], x);
 
-                    /* alternate decode */
-                    double step2 = II_dequantize_one_sample(sample[k][j][i], x);
-                    double dev = step2 - fraction[k][j][i];
-
-                    if (fabs(dev) > 1e-11)
-                        fprintf(stderr,"Layer II dev dist10=%.9f new=%.9f dev=%.9f\n",
-                            fraction[k][j][i],step2,dev);
+                        if (fabs(orscale - fraction[k][j][i]) > 1e-11) {
+                            fprintf(stderr,"Layer II reconstruction deviation: %.9f vs %.9f dev %.9f\n",
+                                    orscale,
+                                    fraction[k][j][i],
+                                    orscale - fraction[k][j][i]);
+                        }
+                    }
+#endif
 
                     /* Dequantize the sample */
                     fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
