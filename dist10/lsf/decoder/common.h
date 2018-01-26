@@ -471,7 +471,7 @@ extern void           I_CRC_calc(frame_params*, unsigned int[2][SBLIMIT],
 extern void           II_CRC_calc(frame_params*, unsigned int[2][SBLIMIT],
                         unsigned int[2][SBLIMIT], unsigned int*);
 extern void           update_CRC(unsigned int, unsigned int, unsigned int*);
-extern void           I_dequantize_fscale_gen();
+extern void           I_dequantize_fscale_gen(void);
 extern void           read_absthr(FLOAT*, int);
 extern unsigned int   hget1bit(); /* MI */
 extern unsigned long  hgetbits(int);

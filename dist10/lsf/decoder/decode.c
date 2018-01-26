@@ -535,7 +535,7 @@ void II_dequantize_sample(
 
 static double I_fscale[16] = {0}; /* sample values max out at 15 bits where (bit_alloc maxes out at 14) + 1 */
 
-void I_dequantize_fscale_gen()
+void I_dequantize_fscale_gen(void)
 {
     unsigned int nb;
 
