@@ -242,7 +242,7 @@ al_table *alloc;
         sscanf(t, "%d\n", &sblim);
         while (!feof(fp)) {
                 fgets(t, 80, fp);
-                sscanf(t, "%d %d %d %d %d %d\n", &i, &j, &a, &b, &c, &d);
+                sscanf(t, "%u %u %u %u %u %u\n", &i, &j, &a, &b, &c, &d);
                         (*alloc)[i][j].steps = a;
                         (*alloc)[i][j].bits  = b;
                         (*alloc)[i][j].group = c;
@@ -1184,7 +1184,7 @@ int N;          /* sync word length */
     getbits(bs, (int)(ALIGNING-aligning));
 
   val = getbits(bs, N);
-  while (((val&maxi) != sync) && (!end_bs(bs))) {
+  while (((val&maxi) != (unsigned long)sync) && (!end_bs(bs))) {
         val <<= ALIGNING;
         val |= getbits(bs, ALIGNING);
   }
@@ -1385,7 +1385,7 @@ int N;                  /* number of bits to read from the bit stream */
 	if (buf_byte_idx > offset)
 	  { printf("Buffer overflow !!\n");exit(3); }
    }
-   k = MIN (j, buf_bit_idx);
+   k = MIN ((int)j, (int)buf_bit_idx);
    tmp = buf[buf_byte_idx%BUFSIZE]&putmask[buf_bit_idx];
    tmp = tmp >> (buf_bit_idx-k);
    val |= tmp << (j-k);

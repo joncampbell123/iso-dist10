@@ -1131,8 +1131,8 @@ III_side_info_t *si;
 int gr, ch;
 frame_params *fr_ps;
 {
-short i,j,k;
-short blocktypenumber, blocknumber;
+unsigned short i,j,k;
+unsigned short blocktypenumber, blocknumber;
 
 struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
 unsigned scalefac_comp, int_scalefac_comp, new_slen[4];
@@ -1371,7 +1371,7 @@ frame_params *fr_ps;
    currentBit = hsstell();
 
    /* Read bigvalues area. */
-   for (i=0; i<(*si).ch[ch].gr[gr].big_values*2; i+=2) {
+   for (i=0; (unsigned int)i < ((*si).ch[ch].gr[gr].big_values*2); i+=2) {
       if      (i<region1Start) h = &ht[(*si).ch[ch].gr[gr].table_select[0]];
       else if (i<region2Start) h = &ht[(*si).ch[ch].gr[gr].table_select[1]];
            else                h = &ht[(*si).ch[ch].gr[gr].table_select[2]];

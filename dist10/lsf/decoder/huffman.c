@@ -161,7 +161,7 @@ FILE *fi;
     }
     ht[n].linmax = (1<<ht[n].linbits)-1;
    
-    sscanf(ht[n].tablename,"%u",&nn);
+    sscanf(ht[n].tablename,"%d",&nn);
     if (nn != n) {
       fprintf(stderr,"wrong table number %u\n",n);
       return(-2);
@@ -170,7 +170,7 @@ FILE *fi;
       fgets(line,99,fi);
     } while ((line[0] == '#') || (line[0] < ' '));
 
-    sscanf(line,"%s %u",command,&t);
+    sscanf(line,"%s %d",command,&t);
     if (strcmp(command,".reference")==0) {
       ht[n].ref   = t;
       ht[n].val   = ht[t].val;
@@ -192,7 +192,7 @@ FILE *fi;
     	fprintf(stderr, "heaperror at table %d\n",n);
     	exit (-10);
       }
-      for (i=0;i<ht[n].treelen; i++) {
+      for (i=0; (unsigned int)i < ht[n].treelen; i++) {
         fscanf(fi,"%x %x",&v0, &v1);
         ht[n].val[i][0]=(unsigned char)v0;
         ht[n].val[i][1]=(unsigned char)v1;
@@ -316,7 +316,7 @@ int *w;
       point += h->val[point][0];
     }
     level >>= 1;
-  } while (level  || (point < ht->treelen) );
+  } while (level || ((unsigned int)point < ht->treelen) );
   
   /* Check for error. */
   
@@ -361,12 +361,12 @@ int *w;
 		{int i=*x; *x=*y; *y=i;} 
 */      
      if (h->linbits)
-       if ((h->xlen-1) == *x) 
+       if ((int)(h->xlen-1) == *x) 
          *x += hgetbits(h->linbits);
      if (*x)
         if (hget1bit() == 1) *x = -*x;
      if (h->linbits)	  
-       if ((h->ylen-1) == *y)
+       if ((int)(h->ylen-1) == *y)
          *y += hgetbits(h->linbits);
      if (*y)
         if (hget1bit() == 1) *y = -*y;
