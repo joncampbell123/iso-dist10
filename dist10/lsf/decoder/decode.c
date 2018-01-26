@@ -336,24 +336,25 @@ void II_buffer_sample(
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
     int jsbound = fr_ps->jsbound;
-    al_table *alloc = fr_ps->alloc;
     unsigned int bits;
+    sb_alloc *alloc;
 
     for (i=0;i<sblimit;i++) {
+        alloc = &(*(fr_ps->alloc))[i][0];
         for (j=0;j<((i<jsbound)?stereo:1);j++) {
             if ((bits=bit_alloc[j][i]) != 0) {
                 /* check for grouping in subband */
-                if ((*alloc)[i][bits].group==3) {
+                if (alloc[bits].group == 3) {
                     for (m=0;m<3;m++) {
-                        k = (*alloc)[i][bits].bits;
+                        k = alloc[bits].bits;
                         sample[j][m][i] = (unsigned int) getbits(bs,k);
                     }
                 }
                 else {              /* bit_alloc = 3, 5, 9 */
                     unsigned int nlevels, c=0;
 
-                    nlevels = (*alloc)[i][bits].steps;
-                    k = (*alloc)[i][bits].bits;
+                    nlevels = alloc[bits].steps;
+                    k = alloc[bits].bits;
                     c = (unsigned int) getbits(bs, k);
                     for (k=0;k<3;k++) {
                         sample[j][k][i] = c % nlevels;
