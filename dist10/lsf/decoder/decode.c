@@ -445,14 +445,7 @@ void II_dequantize_sample(
 
                     /* locate MSB in the sample */
                     x = 0;
-#ifndef MS_DOS
                     while ((1L<<x) < (*alloc)[i][bit_alloc[k][i]].steps) x++;
-#else
-                    /* microsoft C thinks an int is a short */
-                    while (( (unsigned long) (1L<<(long)x) <
-                                (unsigned long)( (*alloc)[i][bit_alloc[k][i]].steps)
-                           ) && ( x < 16) ) x++;
-#endif
 
                     fraction[k][j][i] = II_dequantize_one_sample(sample[k][j][i], x, (*alloc)[i][bit_alloc[k][i]].quant);
 #if 1 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
