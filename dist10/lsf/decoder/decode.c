@@ -405,37 +405,49 @@ frame_params *fr_ps;
     int sblimit = fr_ps->sblimit;
     al_table *alloc = fr_ps->alloc;
 
-    for (i=0;i<sblimit;i++)  for (j=0;j<3;j++) for (k=0;k<stereo;k++)
-        if (bit_alloc[k][i]) {
+    for (i=0;i<sblimit;i++) {
+        for (j=0;j<3;j++) {
+            for (k=0;k<stereo;k++) {
+                if (bit_alloc[k][i]) {
 
-            /* locate MSB in the sample */
-            x = 0;
+                    /* locate MSB in the sample */
+                    x = 0;
 #ifndef MS_DOS
-            while ((1L<<x) < (*alloc)[i][bit_alloc[k][i]].steps) x++;
+                    while ((1L<<x) < (*alloc)[i][bit_alloc[k][i]].steps) x++;
 #else
-            /* microsoft C thinks an int is a short */
-            while (( (unsigned long) (1L<<(long)x) <
-                    (unsigned long)( (*alloc)[i][bit_alloc[k][i]].steps)
-                    ) && ( x < 16) ) x++;
+                    /* microsoft C thinks an int is a short */
+                    while (( (unsigned long) (1L<<(long)x) <
+                                (unsigned long)( (*alloc)[i][bit_alloc[k][i]].steps)
+                           ) && ( x < 16) ) x++;
 #endif
 
-            /* MSB inversion */
-            if (((sample[k][j][i] >> (x - 1)) & 1) == 1)
-                fraction[k][j][i] = 0.0;
-            else  fraction[k][j][i] = -1.0;
+                    /* MSB inversion */
+                    if (((sample[k][j][i] >> (x - 1)) & 1) == 1)
+                        fraction[k][j][i] = 0.0;
+                    else  fraction[k][j][i] = -1.0;
 
-            /* Form a 2's complement sample */
-            fraction[k][j][i] += (double) (sample[k][j][i] & ((1 << (x - 1)) - 1)) /
-                (double) (1L << (x - 1));
+                    /* Form a 2's complement sample */
+                    fraction[k][j][i] += (double) (sample[k][j][i] & ((1 << (x - 1)) - 1)) /
+                        (double) (1L << (x - 1));
 
-            /* Dequantize the sample */
-            fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
-            fraction[k][j][i] *= c[(*alloc)[i][bit_alloc[k][i]].quant];
+                    /* Dequantize the sample */
+                    fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
+                    fraction[k][j][i] *= c[(*alloc)[i][bit_alloc[k][i]].quant];
+                }
+                else {
+                    fraction[k][j][i] = 0.0;
+                }
+            }
         }
-        else fraction[k][j][i] = 0.0;   
-   
-    for (i=sblimit;i<SBLIMIT;i++) for (j=0;j<3;j++) for(k=0;k<stereo;k++)
-        fraction[k][j][i] = 0.0;
+    }
+
+    for (i=sblimit;i<SBLIMIT;i++) {
+        for (j=0;j<3;j++) {
+            for(k=0;k<stereo;k++) {
+                fraction[k][j][i] = 0.0;
+            }
+        }
+    }
 }
 
 /***************************** Layer I stuff ***********************/
