@@ -337,22 +337,23 @@ void II_buffer_sample(
     int sblimit = fr_ps->sblimit;
     int jsbound = fr_ps->jsbound;
     al_table *alloc = fr_ps->alloc;
+    unsigned int bits;
 
     for (i=0;i<sblimit;i++) {
         for (j=0;j<((i<jsbound)?stereo:1);j++) {
-            if (bit_alloc[j][i]) {
+            if ((bits=bit_alloc[j][i]) != 0) {
                 /* check for grouping in subband */
-                if ((*alloc)[i][bit_alloc[j][i]].group==3) {
+                if ((*alloc)[i][bits].group==3) {
                     for (m=0;m<3;m++) {
-                        k = (*alloc)[i][bit_alloc[j][i]].bits;
+                        k = (*alloc)[i][bits].bits;
                         sample[j][m][i] = (unsigned int) getbits(bs,k);
                     }
                 }
                 else {              /* bit_alloc = 3, 5, 9 */
                     unsigned int nlevels, c=0;
 
-                    nlevels = (*alloc)[i][bit_alloc[j][i]].steps;
-                    k = (*alloc)[i][bit_alloc[j][i]].bits;
+                    nlevels = (*alloc)[i][bits].steps;
+                    k = (*alloc)[i][bits].bits;
                     c = (unsigned int) getbits(bs, k);
                     for (k=0;k<3;k++) {
                         sample[j][k][i] = c % nlevels;
