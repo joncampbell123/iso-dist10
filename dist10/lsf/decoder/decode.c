@@ -427,11 +427,11 @@ static inline double II_dequantize_one_sample_the_dist10_way(
     return result;
 }
 
-void II_dequantize_sample(sample, bit_alloc, fraction, fr_ps)
-unsigned int FAR sample[2][3][SBLIMIT];
-unsigned int bit_alloc[2][SBLIMIT];
-double FAR fraction[2][3][SBLIMIT];
-frame_params *fr_ps;
+void II_dequantize_sample(
+    unsigned int FAR        sample[2][3][SBLIMIT],
+    unsigned int            bit_alloc[2][SBLIMIT],
+    double FAR              fraction[2][3][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i, j, k, x;
     int stereo = fr_ps->stereo;
