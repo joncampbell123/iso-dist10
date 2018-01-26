@@ -496,14 +496,13 @@ void I_dequantize_sample(
     unsigned int            bit_alloc[2][SBLIMIT],
     frame_params           *fr_ps)
 {
-    int i, nb, k;
+    int i, k;
     int stereo = fr_ps->stereo;
 
     for (i=0;i<SBLIMIT;i++) {
         for (k=0;k<stereo;k++) {
             if (bit_alloc[k][i]) {
-                nb = bit_alloc[k][i] + 1;
-                fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i],nb);
+                fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i], bit_alloc[k][i] + 1);
 #if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                 { /* I want to know if results deviate too much from the ORIGINAL reference source code */
                     double orscale = I_dequantize_one_sample_the_dist10_way(sample[k][0][i],nb);
