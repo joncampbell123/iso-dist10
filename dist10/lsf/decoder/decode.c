@@ -214,72 +214,93 @@ frame_params *fr_ps;
 
 /************************** Layer I stuff ************************/
 
-void I_decode_scale(bs, bit_alloc, scale_index, fr_ps)
-Bit_stream_struc *bs;
-unsigned int bit_alloc[2][SBLIMIT], scale_index[2][3][SBLIMIT];
-frame_params *fr_ps;
+void I_decode_scale(
+    Bit_stream_struc       *bs,
+    unsigned int            bit_alloc[2][SBLIMIT],
+    unsigned int            scale_index[2][3][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j;
     int stereo = fr_ps->stereo;
 
-    for (i=0;i<SBLIMIT;i++) for (j=0;j<stereo;j++)
-        if (!bit_alloc[j][i])
-            scale_index[j][0][i] = SCALE_RANGE-1;
-        else                    /* 6 bit per scale factor */
-            scale_index[j][0][i] =  getbits(bs,6);
-
+    for (i=0;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++) {
+            if (!bit_alloc[j][i])
+                scale_index[j][0][i] = SCALE_RANGE-1;
+            else                    /* 6 bit per scale factor */
+                scale_index[j][0][i] = getbits(bs,6);
+        }
+    }
 }
 
 /*************************** Layer II stuff ***************************/
 
-void II_decode_scale(bs,scfsi, bit_alloc,scale_index, fr_ps)
-Bit_stream_struc *bs;
-unsigned int scfsi[2][SBLIMIT], bit_alloc[2][SBLIMIT],
-             scale_index[2][3][SBLIMIT];
-frame_params *fr_ps;
+void II_decode_scale(
+    Bit_stream_struc       *bs,
+    unsigned int            scfsi[2][SBLIMIT],
+    unsigned int            bit_alloc[2][SBLIMIT],
+    unsigned int            scale_index[2][3][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j;
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
    
-    for (i=0;i<sblimit;i++) for (j=0;j<stereo;j++) /* 2 bit scfsi */
-        if (bit_alloc[j][i]) scfsi[j][i] = (char) getbits(bs,2);
-    for (i=sblimit;i<SBLIMIT;i++) for (j=0;j<stereo;j++)   
-        scfsi[j][i] = 0;
-
-    for (i=0;i<sblimit;i++) for (j=0;j<stereo;j++) {
-        if (bit_alloc[j][i])   
-            switch (scfsi[j][i]) {
-                /* all three scale factors transmitted */
-             case 0 : scale_index[j][0][i] = getbits(bs,6);
-                scale_index[j][1][i] = getbits(bs,6);
-                scale_index[j][2][i] = getbits(bs,6);
-                break;
-                /* scale factor 1 & 3 transmitted */
-             case 1 : scale_index[j][0][i] =
-                 scale_index[j][1][i] = getbits(bs,6);
-                scale_index[j][2][i] = getbits(bs,6);
-                break;
-                /* scale factor 1 & 2 transmitted */
-             case 3 : scale_index[j][0][i] = getbits(bs,6);
-                scale_index[j][1][i] =
-                    scale_index[j][2][i] =  getbits(bs,6);
-                break;
-                /* only one scale factor transmitted */
-             case 2 : scale_index[j][0][i] =
-                 scale_index[j][1][i] =
-                     scale_index[j][2][i] = getbits(bs,6);
-                break;
-                default : break;
-            }
-        else {
-            scale_index[j][0][i] = scale_index[j][1][i] =
-                scale_index[j][2][i] = SCALE_RANGE-1;
+    for (i=0;i<sblimit;i++) {
+        for (j=0;j<stereo;j++) { /* 2 bit scfsi */
+            if (bit_alloc[j][i])
+                scfsi[j][i] = (char) getbits(bs,2);
         }
     }
-    for (i=sblimit;i<SBLIMIT;i++) for (j=0;j<stereo;j++) {
-        scale_index[j][0][i] = scale_index[j][1][i] =
+
+    for (i=sblimit;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++) {
+            scfsi[j][i] = 0;
+        }
+    }
+
+    for (i=0;i<sblimit;i++) {
+        for (j=0;j<stereo;j++) {
+            if (bit_alloc[j][i]) {
+                switch (scfsi[j][i]) {
+                    /* all three scale factors transmitted */
+                    case 0 : scale_index[j][0][i] = getbits(bs,6);
+                             scale_index[j][1][i] = getbits(bs,6);
+                             scale_index[j][2][i] = getbits(bs,6);
+                             break;
+                             /* scale factor 1 & 3 transmitted */
+                    case 1 : scale_index[j][0][i] =
+                             scale_index[j][1][i] = getbits(bs,6);
+                             scale_index[j][2][i] = getbits(bs,6);
+                             break;
+                             /* scale factor 1 & 2 transmitted */
+                    case 3 : scale_index[j][0][i] = getbits(bs,6);
+                             scale_index[j][1][i] =
+                             scale_index[j][2][i] = getbits(bs,6);
+                             break;
+                             /* only one scale factor transmitted */
+                    case 2 : scale_index[j][0][i] =
+                             scale_index[j][1][i] =
+                             scale_index[j][2][i] = getbits(bs,6);
+                             break;
+                    default :
+                             break;
+                }
+            }
+            else {
+                scale_index[j][0][i] =
+                scale_index[j][1][i] =
+                scale_index[j][2][i] = SCALE_RANGE-1;
+            }
+        }
+    }
+
+    for (i=sblimit;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++) {
+            scale_index[j][0][i] =
+            scale_index[j][1][i] =
             scale_index[j][2][i] = SCALE_RANGE-1;
+        }
     }
 }
 
@@ -317,6 +338,7 @@ void I_buffer_sample(
                 sample[j][0][i] = (unsigned int) getbits(bs,k+1);
         }
     }
+
     for (i=jsbound;i<SBLIMIT;i++) {
         if ((k=bit_alloc[0][i]) == 0)
             s = 0;
