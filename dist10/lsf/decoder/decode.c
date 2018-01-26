@@ -448,7 +448,7 @@ void II_dequantize_sample(
                         II_dequantize_one_sample(
                             sample[k][j][i], alloc[bits].steps_as_bits, alloc[bits].quant);
 
-#if 1 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
+#if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                     { /* I want to know if results deviate too much from the ORIGINAL reference source code */
                         double orscale =
                             II_dequantize_one_sample_the_dist10_way(
