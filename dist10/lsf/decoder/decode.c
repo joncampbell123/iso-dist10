@@ -395,12 +395,13 @@ static double d[17] = { 0.500000000, 0.500000000, 0.250000000, 0.500000000,
 /************************** Layer II stuff ************************/
 
 /* Faster implementation (Jon C) */
-static inline double II_dequantize_one_sample(const unsigned int sample,const unsigned char x) {
-    return ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
+static inline double II_dequantize_one_sample(const unsigned int sample,const unsigned char x,const unsigned char bit_alloc_quant) {
+    return
+        ((((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1))) + d[bit_alloc_quant]) / c[bit_alloc_quant];
 }
 
 /* original dist10 implementation */
-static inline double II_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char x) {
+static inline double II_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char x,const unsigned char bit_alloc_quant) {
     double result;
 
     /* MSB inversion */
@@ -411,6 +412,9 @@ static inline double II_dequantize_one_sample_the_dist10_way(const unsigned int 
 
     /* Form a 2's complement sample */
     result += (double)(sample & ((1 << (x - 1)) - 1)) / (double)(1L << (x - 1));
+
+    result += d[bit_alloc_quant];
+    result /= c[bit_alloc_quant];
 
     return result;
 }
@@ -442,10 +446,10 @@ frame_params *fr_ps;
                            ) && ( x < 16) ) x++;
 #endif
 
-                    fraction[k][j][i] = II_dequantize_one_sample(sample[k][j][i], x);
-#if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
+                    fraction[k][j][i] = II_dequantize_one_sample(sample[k][j][i], x, (*alloc)[i][bit_alloc[k][i]].quant);
+#if 1 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                     { /* I want to know if results deviate too much from the ORIGINAL reference source code */
-                        double orscale = II_dequantize_one_sample_the_dist10_way(sample[k][j][i], x);
+                        double orscale = II_dequantize_one_sample_the_dist10_way(sample[k][j][i], x, (*alloc)[i][bit_alloc[k][i]].quant);
 
                         if (fabs(orscale - fraction[k][j][i]) > 1e-11) {
                             fprintf(stderr,"Layer II reconstruction deviation: %.9f vs %.9f dev %.9f\n",
@@ -455,10 +459,6 @@ frame_params *fr_ps;
                         }
                     }
 #endif
-
-                    /* Dequantize the sample */
-                    fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
-                    fraction[k][j][i] *= c[(*alloc)[i][bit_alloc[k][i]].quant];
                 }
                 else {
                     fraction[k][j][i] = 0.0;
