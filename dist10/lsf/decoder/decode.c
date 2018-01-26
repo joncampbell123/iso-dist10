@@ -399,6 +399,22 @@ static inline double II_dequantize_one_sample(const unsigned int sample,const un
     return ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
 }
 
+/* original dist10 implementation */
+static inline double II_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char x) {
+    double result;
+
+    /* MSB inversion */
+    if (((sample >> (x - 1)) & 1) == 1)
+        result = 0.0;
+    else
+        result = -1.0;
+
+    /* Form a 2's complement sample */
+    result += (double)(sample & ((1 << (x - 1)) - 1)) / (double)(1L << (x - 1));
+
+    return result;
+}
+
 void II_dequantize_sample(sample, bit_alloc, fraction, fr_ps)
 unsigned int FAR sample[2][3][SBLIMIT];
 unsigned int bit_alloc[2][SBLIMIT];
@@ -426,14 +442,7 @@ frame_params *fr_ps;
                            ) && ( x < 16) ) x++;
 #endif
 
-                    /* MSB inversion */
-                    if (((sample[k][j][i] >> (x - 1)) & 1) == 1)
-                        fraction[k][j][i] = 0.0;
-                    else  fraction[k][j][i] = -1.0;
-
-                    /* Form a 2's complement sample */
-                    fraction[k][j][i] += (double) (sample[k][j][i] & ((1 << (x - 1)) - 1)) /
-                        (double) (1L << (x - 1));
+                    fraction[k][j][i] = II_dequantize_one_sample_the_dist10_way(sample[k][j][i], x);
 
                     /* alternate decode */
                     double step2 = II_dequantize_one_sample(sample[k][j][i], x);
