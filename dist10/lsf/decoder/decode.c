@@ -579,11 +579,11 @@ void I_dequantize_sample(
 
 /************************* Layer II Stuff **********************/
 
-void II_denormalize_sample(fraction, scale_index,fr_ps,x)
-double FAR fraction[2][3][SBLIMIT];
-unsigned int scale_index[2][3][SBLIMIT];
-frame_params *fr_ps;
-int x;
+void II_denormalize_sample(
+    double FAR              fraction[2][3][SBLIMIT],
+    unsigned int            scale_index[2][3][SBLIMIT],
+    frame_params           *fr_ps,
+    int                     x)
 {
     int i,j;
     int stereo = fr_ps->stereo;
