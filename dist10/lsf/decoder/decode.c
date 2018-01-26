@@ -1071,11 +1071,10 @@ struct  {
 
 
 
-void III_get_scale_factors(scalefac, si, gr, ch, fr_ps)
+void III_get_scale_factors(scalefac, si, gr, ch)
 III_scalefac_t *scalefac;
 III_side_info_t *si;
 int gr, ch;
-frame_params *fr_ps;
 {
 int sfb, i, window;
 struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
@@ -1127,8 +1126,7 @@ static unsigned nr_of_sfb_block[6][3][4] = {{{6, 5, 5, 5},{ 9, 9, 9, 9 },{6, 9, 
                                          {{8, 8, 5, 0},{15,12,9,0},{6,18,9,0}}};
 static unsigned scalefac_buffer[54];
 
-void III_get_LSF_scale_data(scalefac, si, gr, ch, fr_ps)
-III_scalefac_t *scalefac;
+void III_get_LSF_scale_data(si, gr, ch, fr_ps)
 III_side_info_t *si;
 int gr, ch;
 frame_params *fr_ps;
@@ -1257,7 +1255,7 @@ frame_params *fr_ps;
 int sfb, k = 0, window;
 struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
  
-     III_get_LSF_scale_data(scalefac, si, gr, ch, fr_ps);
+     III_get_LSF_scale_data(si, gr, ch, fr_ps);
 
 
     if (gr_info->window_switching_flag && (gr_info->block_type == 2)) { 
@@ -1874,11 +1872,10 @@ frame_params *fr_ps;
 double Ci[8]={-0.6,-0.535,-0.33,-0.185,-0.095,-0.041,-0.0142,-0.0037};
 
 
-void III_antialias(xr, hybridIn, gr_info, fr_ps)
+void III_antialias(xr, hybridIn, gr_info)
 double xr[SBLIMIT][SSLIMIT];    
 double hybridIn[SBLIMIT][SSLIMIT];
 struct gr_info_s *gr_info;             
-frame_params *fr_ps;            
 {
    static int    init = 1;
    static double ca[8],cs[8];
@@ -2009,12 +2006,11 @@ static  double COS[4*36];
     }
 }
 
-void III_hybrid(fsIn, tsOut ,sb, ch, gr_info, fr_ps)
+void III_hybrid(fsIn, tsOut ,sb, ch, gr_info)
 double fsIn[SSLIMIT];   /* freq samples per subband in */
 double tsOut[SSLIMIT];  /* time samples per subband out */
 int sb, ch;
 struct gr_info_s *gr_info;             
-frame_params *fr_ps;            
 {
    int ss;
    double rawout[36];

@@ -386,8 +386,7 @@ if (frameNum == 0 && Arguments.need_esps) {
                  part2_start = hsstell();
                  if(fr_ps.header->version != MPEG_PHASE2_LSF)
                  {
-                    III_get_scale_factors(&III_scalefac,&III_side_info,gr,ch,
-			   &fr_ps);
+                    III_get_scale_factors(&III_scalefac,&III_side_info,gr,ch);
                  }
                  else
                  {
@@ -413,11 +412,11 @@ if (frameNum == 0 && Arguments.need_esps) {
                                   &fr_ps);
 
                     III_antialias(re, hybridIn, /* Antialias butterflies. */
-                                  &(III_side_info.ch[ch].gr[gr]), &fr_ps);
+                                  &(III_side_info.ch[ch].gr[gr]));
 
                     for (sb=0; sb<SBLIMIT; sb++) { /* Hybrid synthesis. */
                         III_hybrid(hybridIn[sb], hybridOut[sb], sb, ch,
-                                   &(III_side_info.ch[ch].gr[gr]), &fr_ps);
+                                   &(III_side_info.ch[ch].gr[gr]));
                     }
 
                     for (ss=0;ss<18;ss++) /*Frequency inversion for polyphase.*/

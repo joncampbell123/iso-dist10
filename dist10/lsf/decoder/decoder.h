@@ -142,10 +142,10 @@ extern void   III_dequantize_sample(long int[SBLIMIT][SSLIMIT],
 			double [SBLIMIT][SSLIMIT], III_scalefac_t *,
                         struct gr_info_s *, int, frame_params *);
 extern void   III_antialias(double[SBLIMIT][SSLIMIT], double[SBLIMIT][SSLIMIT], 
-                          struct gr_info_s *, frame_params *);
+                          struct gr_info_s *);
 extern void   inv_mdct(double[18], double[36], int);
 extern void   III_hybrid(double[SSLIMIT], double[SSLIMIT] , int, int,
-                       struct gr_info_s *, frame_params *);
+                       struct gr_info_s *);
 extern void   III_get_side_info(Bit_stream_struc *,
                                  III_side_info_t *,
                                  frame_params *);
@@ -158,8 +158,7 @@ extern void   III_put_side_info(Bit_stream_struc *,
 extern void III_get_scale_factors(III_scalefac_t *,
                                  III_side_info_t *, 
                                  int, 
-                                 int, 
-                                 frame_params *);
+                                 int);
 
 #else
 extern void   decode_info();
