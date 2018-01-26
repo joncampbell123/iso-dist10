@@ -430,6 +430,16 @@ frame_params *fr_ps;
                     fraction[k][j][i] += (double) (sample[k][j][i] & ((1 << (x - 1)) - 1)) /
                         (double) (1L << (x - 1));
 
+                    /* alternate decode */
+                    int step1 = (int)sample[k][j][i] - (1 << (x - 1));
+                    double step2 = (double)step1 / (1 << (x - 1));
+
+                    double dev = step2 - fraction[k][j][i];
+
+                    if (fabs(dev) > 1e-11)
+                        fprintf(stderr,"Layer II dev dist10=%.9f new=%.9f dev=%.9f\n",
+                            fraction[k][j][i],step2,dev);
+
                     /* Dequantize the sample */
                     fraction[k][j][i] += d[(*alloc)[i][bit_alloc[k][i]].quant];
                     fraction[k][j][i] *= c[(*alloc)[i][bit_alloc[k][i]].quant];
