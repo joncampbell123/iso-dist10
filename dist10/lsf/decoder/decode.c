@@ -547,8 +547,8 @@ void I_dequantize_fscale_gen(void)
 
 /* Faster implementation (Jon C) */
 static inline double I_dequantize_one_sample(
-    const unsigned int sample,
-    const unsigned char nb)
+    const unsigned int      sample,
+    const unsigned char     nb)
 {
     /* assume: nb >= 2 && nb <= 15 */
     /* C compiler will multiply signed int by double and return double result */
