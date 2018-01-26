@@ -436,26 +436,27 @@ void II_dequantize_sample(
     int i, j, k;
     int stereo = fr_ps->stereo;
     int sblimit = fr_ps->sblimit;
-    al_table *alloc = fr_ps->alloc;
     unsigned int bits;
+    sb_alloc *alloc;
 
     for (i=0;i<sblimit;i++) {
+        alloc = &(*(fr_ps->alloc))[i][0];
         for (j=0;j<3;j++) {
             for (k=0;k<stereo;k++) {
                 if ((bits=bit_alloc[k][i]) != 0) {
                     fraction[k][j][i] =
                         II_dequantize_one_sample(
                             sample[k][j][i],
-                            (*alloc)[i][bits].steps_as_bits,
-                            (*alloc)[i][bits].quant);
+                            alloc[bits].steps_as_bits,
+                            alloc[bits].quant);
 
 #if 1 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                     { /* I want to know if results deviate too much from the ORIGINAL reference source code */
                         double orscale =
                             II_dequantize_one_sample_the_dist10_way(
                                 sample[k][j][i],
-                                (*alloc)[i][bits].steps_as_bits,
-                                (*alloc)[i][bits].quant);
+                                alloc[bits].steps_as_bits,
+                                alloc[bits].quant);
 
                         if (fabs(orscale - fraction[k][j][i]) > 1e-11) {
                             fprintf(stderr,"Layer II reconstruction deviation: %.9f vs %.9f dev %.9f\n",
