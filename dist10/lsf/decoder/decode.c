@@ -591,9 +591,11 @@ void II_denormalize_sample(
 
     for (i=0;i<sblimit;i++) {
         for (j=0;j<stereo;j++) {
-            fraction[j][0][i] *= multiple[scale_index[j][x][i]];
-            fraction[j][1][i] *= multiple[scale_index[j][x][i]];
-            fraction[j][2][i] *= multiple[scale_index[j][x][i]];
+            const double multiply = multiple[scale_index[j][x][i]];
+
+            fraction[j][0][i] *= multiply;
+            fraction[j][1][i] *= multiply;
+            fraction[j][2][i] *= multiply;
         }
     }
 }
