@@ -288,6 +288,7 @@ typedef struct {
     unsigned int    bits;
     unsigned int    group;
     unsigned int    quant;
+    unsigned char   steps_as_bits; /* generated on load, so that II_dequant doesn't have to hunt for equivalent bit count */
 } sb_alloc, *alloc_ptr;
 
 typedef sb_alloc        al_table[SBLIMIT][16];

@@ -442,10 +442,7 @@ void II_dequantize_sample(
         for (j=0;j<3;j++) {
             for (k=0;k<stereo;k++) {
                 if (bit_alloc[k][i]) {
-
-                    /* locate MSB in the sample */
-                    x = 0;
-                    while ((1L<<x) < (*alloc)[i][bit_alloc[k][i]].steps) x++;
+                    x = (*alloc)[i][bit_alloc[k][i]].steps_as_bits;
 
                     fraction[k][j][i] = II_dequantize_one_sample(sample[k][j][i], x, (*alloc)[i][bit_alloc[k][i]].quant);
 #if 1 /* change to #if 1 if you want to validate the results of the new dequant function are correct */

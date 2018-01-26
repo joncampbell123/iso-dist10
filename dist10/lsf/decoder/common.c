@@ -215,7 +215,7 @@ int read_bit_alloc(table, alloc)        /* read in table, return # subbands */
 int table;
 al_table *alloc;
 {
-        unsigned int a, b, c, d, i, j;
+        unsigned int a, b, c, d, i, j, x;
         FILE *fp;
         char name[16], t[80];
         int sblim;
@@ -247,6 +247,12 @@ al_table *alloc;
                         (*alloc)[i][j].bits  = b;
                         (*alloc)[i][j].group = c;
                         (*alloc)[i][j].quant = d;
+
+                /* II_dequant wants to use steps as bit count.
+                 * precompute it here instead of making it search for power of 2 from steps */
+                        x = 0;
+                        while ((1L<<x) < (*alloc)[i][j].steps) x++;
+                        (*alloc)[i][j].steps_as_bits = x;
         }
         fclose(fp);
         return sblim;
