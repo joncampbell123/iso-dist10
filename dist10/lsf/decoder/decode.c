@@ -401,7 +401,7 @@ static inline double II_dequantize_one_sample(
     const unsigned char bit_alloc_quant)
 {
     const double v1 = ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
-    return (v1 + d[bit_alloc_quant]) / c[bit_alloc_quant];
+    return (v1 + d[bit_alloc_quant]) * c[bit_alloc_quant];
 }
 
 /* original dist10 implementation */
@@ -422,7 +422,7 @@ static inline double II_dequantize_one_sample_the_dist10_way(
     result += (double)(sample & ((1 << (x - 1)) - 1)) / (double)(1L << (x - 1));
 
     result += d[bit_alloc_quant];
-    result /= c[bit_alloc_quant];
+    result *= c[bit_alloc_quant];
 
     return result;
 }
