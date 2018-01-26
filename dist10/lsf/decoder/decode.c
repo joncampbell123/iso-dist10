@@ -127,24 +127,24 @@
 
 /************ Layer I, Layer II & Layer III ******************/
 
-void decode_info(bs, fr_ps)
-Bit_stream_struc *bs;
-frame_params *fr_ps;
+void decode_info(
+    Bit_stream_struc       *bs,
+    frame_params           *fr_ps)
 {
     layer *hdr = fr_ps->header;
 
-    hdr->version = get1bit(bs);
-    hdr->lay = 4-getbits(bs,2);
-    hdr->error_protection = !get1bit(bs); /* error protect. TRUE/FALSE */
-    hdr->bitrate_index = getbits(bs,4);
-    hdr->sampling_frequency = getbits(bs,2);
-    hdr->padding = get1bit(bs);
-    hdr->extension = get1bit(bs);
-    hdr->mode = getbits(bs,2);
-    hdr->mode_ext = getbits(bs,2);
-    hdr->copyright = get1bit(bs);
-    hdr->original = get1bit(bs);
-    hdr->emphasis = getbits(bs,2);
+    hdr->version =              get1bit(bs);
+    hdr->lay =              4 - getbits(bs,2);
+    hdr->error_protection =    !get1bit(bs); /* error protect. TRUE/FALSE */
+    hdr->bitrate_index =        getbits(bs,4);
+    hdr->sampling_frequency =   getbits(bs,2);
+    hdr->padding =              get1bit(bs);
+    hdr->extension =            get1bit(bs);
+    hdr->mode =                 getbits(bs,2);
+    hdr->mode_ext =             getbits(bs,2);
+    hdr->copyright =            get1bit(bs);
+    hdr->original =             get1bit(bs);
+    hdr->emphasis =             getbits(bs,2);
 }
 
 /*******************************************************************
