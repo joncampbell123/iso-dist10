@@ -563,8 +563,8 @@ static inline double I_dequantize_one_sample(
 
 /* Original dist10 method, for checking */
 static inline double I_dequantize_one_sample_the_dist10_way(
-    const unsigned int sample,
-    const unsigned char nb)
+    const unsigned int      sample,
+    const unsigned char     nb)
 {
     double result;
 
