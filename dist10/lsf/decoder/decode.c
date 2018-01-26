@@ -298,29 +298,33 @@ frame_params *fr_ps;
 
 /******************************* Layer I stuff ******************/
 
-void I_buffer_sample(bs, sample, bit_alloc, fr_ps)
-unsigned int FAR sample[2][3][SBLIMIT];
-unsigned int bit_alloc[2][SBLIMIT];
-Bit_stream_struc *bs;
-frame_params *fr_ps;
+void I_buffer_sample(
+    Bit_stream_struc       *bs,
+    unsigned int FAR        sample[2][3][SBLIMIT],
+    unsigned int            bit_alloc[2][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j,k;
     int stereo = fr_ps->stereo;
     int jsbound = fr_ps->jsbound;
     unsigned int s;
 
-    for (i=0;i<jsbound;i++) for (j=0;j<stereo;j++)
-        if ( (k = bit_alloc[j][i]) == 0)
-            sample[j][0][i] = 0;
-        else 
-            sample[j][0][i] = (unsigned int) getbits(bs,k+1);
+    for (i=0;i<jsbound;i++) {
+        for (j=0;j<stereo;j++) {
+            if ((k=bit_alloc[j][i]) == 0)
+                sample[j][0][i] = 0;
+            else
+                sample[j][0][i] = (unsigned int) getbits(bs,k+1);
+        }
+    }
     for (i=jsbound;i<SBLIMIT;i++) {
-        if ( (k = bit_alloc[0][i]) == 0)
+        if ((k=bit_alloc[0][i]) == 0)
             s = 0;
-        else 
+        else
             s = (unsigned int)getbits(bs,k+1);
+
         for (j=0;j<stereo;j++)
-            sample[j][0][i]    = s;
+            sample[j][0][i] = s;
     }
 }
 
