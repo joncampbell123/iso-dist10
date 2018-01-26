@@ -602,16 +602,19 @@ void II_denormalize_sample(
 
 /**************************** Layer I stuff ******************************/
 
-void I_denormalize_sample(fraction,scale_index,fr_ps)
-double FAR fraction[2][3][SBLIMIT];
-unsigned int scale_index[2][3][SBLIMIT];
-frame_params *fr_ps;
+void I_denormalize_sample(
+    double FAR              fraction[2][3][SBLIMIT],
+    unsigned int            scale_index[2][3][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j;
     int stereo = fr_ps->stereo;
 
-    for (i=0;i<SBLIMIT;i++) for (j=0;j<stereo;j++)
-        fraction[j][0][i] *= multiple[scale_index[j][0][i]];
+    for (i=0;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++) {
+            fraction[j][0][i] *= multiple[scale_index[j][0][i]];
+        }
+    }
 }
 
 /*****************************************************************
