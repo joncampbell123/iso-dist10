@@ -395,13 +395,21 @@ static double d[17] = { 0.500000000, 0.500000000, 0.250000000, 0.500000000,
 /************************** Layer II stuff ************************/
 
 /* Faster implementation (Jon C) */
-static inline double II_dequantize_one_sample(const unsigned int sample,const unsigned char x,const unsigned char bit_alloc_quant) {
+static inline double II_dequantize_one_sample(
+    const unsigned int sample,
+    const unsigned char x,
+    const unsigned char bit_alloc_quant)
+{
     const double v1 = ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
     return (v1 + d[bit_alloc_quant]) / c[bit_alloc_quant];
 }
 
 /* original dist10 implementation */
-static inline double II_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char x,const unsigned char bit_alloc_quant) {
+static inline double II_dequantize_one_sample_the_dist10_way(
+    const unsigned int sample,
+    const unsigned char x,
+    const unsigned char bit_alloc_quant)
+{
     double result;
 
     /* MSB inversion */
@@ -491,7 +499,10 @@ void I_dequantize_fscale_gen()
 }
 
 /* Faster implementation (Jon C) */
-static inline double I_dequantize_one_sample(const unsigned int sample,const unsigned char nb) {
+static inline double I_dequantize_one_sample(
+    const unsigned int sample,
+    const unsigned char nb)
+{
     /* assume: nb >= 2 && nb <= 15 */
     /* C compiler will multiply signed int by double and return double result */
 
@@ -504,7 +515,10 @@ static inline double I_dequantize_one_sample(const unsigned int sample,const uns
 }
 
 /* Original dist10 method, for checking */
-static inline double I_dequantize_one_sample_the_dist10_way(const unsigned int sample,const unsigned char nb) {
+static inline double I_dequantize_one_sample_the_dist10_way(
+    const unsigned int sample,
+    const unsigned char nb)
+{
     double result;
 
     /* This original code does a lot of overwrought sign bit vs fractional
