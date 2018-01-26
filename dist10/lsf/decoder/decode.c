@@ -396,8 +396,8 @@ static double d[17] = { 0.500000000, 0.500000000, 0.250000000, 0.500000000,
 
 /* Faster implementation (Jon C) */
 static inline double II_dequantize_one_sample(const unsigned int sample,const unsigned char x,const unsigned char bit_alloc_quant) {
-    return
-        ((((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1))) + d[bit_alloc_quant]) / c[bit_alloc_quant];
+    const double v1 = ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
+    return (v1 + d[bit_alloc_quant]) / c[bit_alloc_quant];
 }
 
 /* original dist10 implementation */
