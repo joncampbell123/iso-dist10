@@ -157,10 +157,10 @@ frame_params *fr_ps;
 
 /**************************** Layer II *************/
 
-void II_decode_bitalloc(bs, bit_alloc, fr_ps)
-Bit_stream_struc *bs;
-unsigned int bit_alloc[2][SBLIMIT];
-frame_params *fr_ps;
+void II_decode_bitalloc(
+    Bit_stream_struc       *bs,
+    unsigned int            bit_alloc[2][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j;
     int stereo = fr_ps->stereo;
@@ -168,31 +168,42 @@ frame_params *fr_ps;
     int jsbound = fr_ps->jsbound;
     al_table *alloc = fr_ps->alloc;
 
-    for (i=0;i<jsbound;i++) for (j=0;j<stereo;j++)
-        bit_alloc[j][i] = (char) getbits(bs,(*alloc)[i][0].bits);
+    for (i=0;i<jsbound;i++) {
+        for (j=0;j<stereo;j++) {
+            bit_alloc[j][i] =
+                (char)getbits(bs,(*alloc)[i][0].bits);
+        }
+    }
 
-    for (i=jsbound;i<sblimit;i++) /* expand to 2 channels */
-        bit_alloc[0][i] = bit_alloc[1][i] =
-            (char) getbits(bs,(*alloc)[i][0].bits);
+    for (i=jsbound;i<sblimit;i++) {/* expand to 2 channels */
+        bit_alloc[0][i] =
+        bit_alloc[1][i] =
+            (char)getbits(bs,(*alloc)[i][0].bits);
+    }
 
-    for (i=sblimit;i<SBLIMIT;i++) for (j=0;j<stereo;j++)
-        bit_alloc[j][i] = 0;
+    for (i=sblimit;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++)
+            bit_alloc[j][i] = 0;
+    }
 }
 
 /**************************** Layer I *************/
 
-void I_decode_bitalloc(bs, bit_alloc, fr_ps)
-Bit_stream_struc *bs;
-unsigned int bit_alloc[2][SBLIMIT];
-frame_params *fr_ps;
+void I_decode_bitalloc(
+    Bit_stream_struc       *bs,
+    unsigned int            bit_alloc[2][SBLIMIT],
+    frame_params           *fr_ps)
 {
     int i,j;
     int stereo  = fr_ps->stereo;
     int jsbound = fr_ps->jsbound;
     int b;
 
-    for (i=0;i<jsbound;i++) for (j=0;j<stereo;j++)
-        bit_alloc[j][i] = getbits(bs,4);
+    for (i=0;i<jsbound;i++) {
+        for (j=0;j<stereo;j++)
+            bit_alloc[j][i] = getbits(bs,4);
+    }
+
     for (i=jsbound;i<SBLIMIT;i++) {
         b = getbits(bs,4);
         for (j=0;j<stereo;j++)
