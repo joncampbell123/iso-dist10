@@ -552,10 +552,10 @@ void I_dequantize_sample(
                 fraction[k][0][i] = I_dequantize_one_sample(sample[k][0][i], bit_alloc[k][i] + 1);
 #if 0 /* change to #if 1 if you want to validate the results of the new dequant function are correct */
                 { /* I want to know if results deviate too much from the ORIGINAL reference source code */
-                    double orscale = I_dequantize_one_sample_the_dist10_way(sample[k][0][i],nb);
+                    double orscale = I_dequantize_one_sample_the_dist10_way(sample[k][0][i], bit_alloc[k][i] + 1);
 
-                    if (fabs(orscale - fraction[k][0][i]) > 1e-11) {
-                        fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.9f\n",
+                    if (fabs(orscale - fraction[k][0][i]) > 1e-12) {
+                        fprintf(stderr,"Layer I reconstruction deviation: %.9f vs %.9f dev %.13f\n",
                                 orscale,
                                 fraction[k][0][i],
                                 orscale - fraction[k][0][i]);
