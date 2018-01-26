@@ -394,6 +394,11 @@ static double d[17] = { 0.500000000, 0.500000000, 0.250000000, 0.500000000,
 
 /************************** Layer II stuff ************************/
 
+/* Faster implementation (Jon C) */
+static inline double II_dequantize_one_sample(const unsigned int sample,const unsigned char x) {
+    return ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
+}
+
 void II_dequantize_sample(sample, bit_alloc, fraction, fr_ps)
 unsigned int FAR sample[2][3][SBLIMIT];
 unsigned int bit_alloc[2][SBLIMIT];
@@ -431,9 +436,7 @@ frame_params *fr_ps;
                         (double) (1L << (x - 1));
 
                     /* alternate decode */
-                    int step1 = (int)sample[k][j][i] - (1 << (x - 1));
-                    double step2 = (double)step1 / (1 << (x - 1));
-
+                    double step2 = II_dequantize_one_sample(sample[k][j][i], x);
                     double dev = step2 - fraction[k][j][i];
 
                     if (fabs(dev) > 1e-11)
