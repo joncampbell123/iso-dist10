@@ -326,11 +326,11 @@ frame_params *fr_ps;
 
 /*************************** Layer II stuff ************************/
 
-void II_buffer_sample(bs,sample,bit_alloc,fr_ps)
-unsigned int FAR sample[2][3][SBLIMIT];
-unsigned int bit_alloc[2][SBLIMIT];
-Bit_stream_struc *bs;
-frame_params *fr_ps;
+void II_buffer_sample(
+    Bit_stream_struc       *bs,
+    unsigned int FAR        sample[2][3][SBLIMIT],
+    unsigned int            bit_alloc[2][SBLIMIT],
+    frame_params            *fr_ps)
 {
     int i,j,k,m;
     int stereo = fr_ps->stereo;
@@ -338,35 +338,48 @@ frame_params *fr_ps;
     int jsbound = fr_ps->jsbound;
     al_table *alloc = fr_ps->alloc;
 
-    for (i=0;i<sblimit;i++) for (j=0;j<((i<jsbound)?stereo:1);j++) {
-        if (bit_alloc[j][i]) {
-            /* check for grouping in subband */
-            if ((*alloc)[i][bit_alloc[j][i]].group==3)
-                for (m=0;m<3;m++) {
-                    k = (*alloc)[i][bit_alloc[j][i]].bits;
-                    sample[j][m][i] = (unsigned int) getbits(bs,k);
-                }         
-            else {              /* bit_alloc = 3, 5, 9 */
-                unsigned int nlevels, c=0;
+    for (i=0;i<sblimit;i++) {
+        for (j=0;j<((i<jsbound)?stereo:1);j++) {
+            if (bit_alloc[j][i]) {
+                /* check for grouping in subband */
+                if ((*alloc)[i][bit_alloc[j][i]].group==3) {
+                    for (m=0;m<3;m++) {
+                        k = (*alloc)[i][bit_alloc[j][i]].bits;
+                        sample[j][m][i] = (unsigned int) getbits(bs,k);
+                    }
+                }
+                else {              /* bit_alloc = 3, 5, 9 */
+                    unsigned int nlevels, c=0;
 
-                nlevels = (*alloc)[i][bit_alloc[j][i]].steps;
-                k=(*alloc)[i][bit_alloc[j][i]].bits;
-                c = (unsigned int) getbits(bs, k);
+                    nlevels = (*alloc)[i][bit_alloc[j][i]].steps;
+                    k = (*alloc)[i][bit_alloc[j][i]].bits;
+                    c = (unsigned int) getbits(bs, k);
+                    for (k=0;k<3;k++) {
+                        sample[j][k][i] = c % nlevels;
+                        c /= nlevels;
+                    }
+                }
+            }
+            else {                  /* for no sample transmitted */
+                for (k=0;k<3;k++) sample[j][k][i] = 0;
+            }
+
+            if (stereo == 2 && i >= jsbound) {/* joint stereo : copy L to R */
                 for (k=0;k<3;k++) {
-                    sample[j][k][i] = c % nlevels;
-                    c /= nlevels;
+                    sample[1][k][i] = sample[0][k][i];
                 }
             }
         }
-        else {                  /* for no sample transmitted */
-            for (k=0;k<3;k++) sample[j][k][i] = 0;
-        }
-        if(stereo == 2 && i>= jsbound) /* joint stereo : copy L to R */
-            for (k=0;k<3;k++) sample[1][k][i] = sample[0][k][i];
     }
-    for (i=sblimit;i<SBLIMIT;i++) for (j=0;j<stereo;j++) for (k=0;k<3;k++)
-        sample[j][k][i] = 0;
-}      
+
+    for (i=sblimit;i<SBLIMIT;i++) {
+        for (j=0;j<stereo;j++) {
+            for (k=0;k<3;k++) {
+                sample[j][k][i] = 0;
+            }
+        }
+    }
+}
 
 /**************************************************************
  *
@@ -396,9 +409,9 @@ static double d[17] = { 0.500000000, 0.500000000, 0.250000000, 0.500000000,
 
 /* Faster implementation (Jon C) */
 static inline double II_dequantize_one_sample(
-    const unsigned int sample,
-    const unsigned char x,
-    const unsigned char bit_alloc_quant)
+    const unsigned int      sample,
+    const unsigned char     x,
+    const unsigned char     bit_alloc_quant)
 {
     const double v1 = ((double)((int)sample - (1 << (x - 1)))) / (1 << (x - 1));
     return (v1 + d[bit_alloc_quant]) * c[bit_alloc_quant];
@@ -406,9 +419,9 @@ static inline double II_dequantize_one_sample(
 
 /* original dist10 implementation */
 static inline double II_dequantize_one_sample_the_dist10_way(
-    const unsigned int sample,
-    const unsigned char x,
-    const unsigned char bit_alloc_quant)
+    const unsigned int      sample,
+    const unsigned char     x,
+    const unsigned char     bit_alloc_quant)
 {
     double result;
 
