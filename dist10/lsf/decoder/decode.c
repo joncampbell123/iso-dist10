@@ -743,10 +743,10 @@ void read_syn_window(double FAR window[HAN_SIZE])
     fclose(fp);
 }
 
-int SubBandSynthesis (bandPtr, channel, samples)
-double *bandPtr;
-int channel;
-short *samples;
+int SubBandSynthesis(
+    double                 *bandPtr,
+    int                     channel,
+    short                  *samples)
 {
     register int i,j,k;
     register double *bufOffsetPtr, sum;
@@ -768,7 +768,7 @@ short *samples;
         read_syn_window(window);
         init = 0;
     }
-/*    if (channel == 0) */
+
     bufOffset[channel] = (bufOffset[channel] - 64) & 0x3ff;
     bufOffsetPtr = &((*buf)[channel][bufOffset[channel]]);
 
@@ -776,34 +776,32 @@ short *samples;
         sum = 0;
         for (k=0; k<32; k++)
             sum += bandPtr[k] * (*filter)[i][k];
+
         bufOffsetPtr[i] = sum;
     }
+
     /*  S(i,j) = D(j+32i) * U(j+32i+((i+1)>>1)*64)  */
     /*  samples(i,j) = MWindow(j+32i) * bufPtr(j+32i+((i+1)>>1)*64)  */
     for (j=0; j<32; j++) {
         sum = 0;
         for (i=0; i<16; i++) {
             k = j + (i<<5);
-            sum += window[k] * (*buf) [channel] [( (k + ( ((i+1)>>1) <<6) ) +
-                                                  bufOffset[channel]) & 0x3ff];
+            sum += window[k] * (*buf) [channel] [( (k + ( ((i+1)>>1) <<6) ) + bufOffset[channel]) & 0x3ff];
         }
 
 /*      Casting truncates towards zero for both positive and negative numbers,
-	the result is cross-over distortion,  1995-07-12 shn */
+        the result is cross-over distortion,  1995-07-12 shn */
 
-        if(sum > 0)
-        {
-          foo = (long)(sum * (double) SCALE + (double)0.5);
-        }
+        if (sum > 0)
+            foo = (long)(sum * (double) SCALE + (double)0.5);
         else
-        {
-           foo = (long)(sum * (double)SCALE -(double)0.5);
-        } 
+            foo = (long)(sum * (double)SCALE -(double)0.5);
 
-     if (foo >= (long) SCALE)      {samples[j] = (short)(SCALE-1); ++clip;}
-     else if (foo < (long) -SCALE) {samples[j] = (short)(-SCALE);  ++clip;}
-     else                           samples[j] =(short)foo;
+        if (foo >= (long) SCALE)      {samples[j] = (short)(SCALE-1); ++clip;}
+        else if (foo < (long) -SCALE) {samples[j] = (short)(-SCALE);  ++clip;}
+        else                           samples[j] = (short)foo;
     }
+
     return(clip);
 }
 
