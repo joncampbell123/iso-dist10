@@ -1294,30 +1294,29 @@ void III_get_LSF_scale_factors(
 /* Already declared in huffman.c
 struct huffcodetab ht[HTN];
 */
-int huffman_initialized = FALSE;
+static int huffman_initialized = FALSE;
 
-void initialize_huffman() {
-   FILE *fi;
-  
-   if (huffman_initialized) return;
-   if (!(fi = OpenTableFile("huffdec") )) {
-      printf("Please check huffman table 'huffdec'\n");
-      exit(1);
-   }
+static void initialize_huffman(void) {
+    FILE *fi;
 
-   if (fi==NULL) {
+    if (huffman_initialized) return;
 
-      fprintf(stderr,"decoder table open error\n");
+    if (!(fi = OpenTableFile("huffdec") )) {
+        printf("Please check huffman table 'huffdec'\n");
+        exit(1);
+    }
 
-      exit(3);
+    if (fi==NULL) {
+        fprintf(stderr,"decoder table open error\n");
+        exit(3);
+    }
 
-      }
+    if (read_decoder_table(fi) != HTN) {
+        fprintf(stderr,"decoder table read error\n");
+        exit(4);
+    }
 
-   if (read_decoder_table(fi) != HTN) {
-      fprintf(stderr,"decoder table read error\n");
-      exit(4);
-      }
-huffman_initialized = TRUE;
+    huffman_initialized = TRUE;
 }
 
 void III_hufman_decode(is, si, ch, gr, part2_start, fr_ps)
