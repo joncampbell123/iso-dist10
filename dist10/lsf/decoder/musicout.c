@@ -234,9 +234,6 @@ III_side_info_t III_side_info;
 		Max_gr = 2;
        }
 
-       if (lock_stereo < 0)
-           lock_stereo = stereo;
-
        error_protection = info.error_protection;
        crc_error_count = 0;
        total_error_count = 0;
@@ -258,6 +255,9 @@ if (frameNum == 0 && Arguments.need_esps) {
 
         if (lock_version == 0)
             lock_version = info.version;
+
+       if (lock_stereo < 0)
+           lock_stereo = stereo;
 
        switch (info.lay) {
 
