@@ -1319,87 +1319,89 @@ static void initialize_huffman(void) {
     huffman_initialized = TRUE;
 }
 
-void III_hufman_decode(is, si, ch, gr, part2_start, fr_ps)
-long int is[SBLIMIT][SSLIMIT];
-III_side_info_t *si;
-int gr, ch, part2_start;
-frame_params *fr_ps;
+void III_hufman_decode(
+    long int                is[SBLIMIT][SSLIMIT],
+    III_side_info_t        *si,
+    int                     ch,
+    int                     gr,
+    int                     part2_start,
+    frame_params           *fr_ps)
 {
-   int i, x, y;
-   int v, w;
-   struct huffcodetab *h;
-   int region1Start;
-   int region2Start;
-   int sfreq;
-   int currentBit, grBits;
+    int i, x, y;
+    int v, w;
+    struct huffcodetab *h;
+    int region1Start;
+    int region2Start;
+    int sfreq;
+    int currentBit, grBits;
 
-   sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
-   initialize_huffman();
+    sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+    initialize_huffman();
 
-   /* Find region boundary for short block case. */
-   
-   if ( ((*si).ch[ch].gr[gr].window_switching_flag) && 
-        ((*si).ch[ch].gr[gr].block_type == 2) ) { 
-   
-      /* Region2. */
+    /* Find region boundary for short block case. */
+
+    if ( ((*si).ch[ch].gr[gr].window_switching_flag) && 
+            ((*si).ch[ch].gr[gr].block_type == 2) ) { 
+
+        /* Region2. */
         region1Start = 36;  /* sfb[9/3]*3=36 */
         region2Start = 576; /* No Region2 for short block case. */
-   }
-   else {          /* Find region boundary for long block case. */
+    }
+    else {          /* Find region boundary for long block case. */
 
-      region1Start = sfBandIndex[sfreq]
-                           .l[(*si).ch[ch].gr[gr].region0_count + 1]; /* MI */
-      region2Start = sfBandIndex[sfreq]
-                              .l[(*si).ch[ch].gr[gr].region0_count +
-                              (*si).ch[ch].gr[gr].region1_count + 2]; /* MI */
-      }
+        region1Start = sfBandIndex[sfreq]
+            .l[(*si).ch[ch].gr[gr].region0_count + 1]; /* MI */
+        region2Start = sfBandIndex[sfreq]
+            .l[(*si).ch[ch].gr[gr].region0_count +
+            (*si).ch[ch].gr[gr].region1_count + 2]; /* MI */
+    }
 
 
-   grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
-   currentBit = hsstell();
+    grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
+    currentBit = hsstell();
 
-   /* Read bigvalues area. */
-   for (i=0; (unsigned int)i < ((*si).ch[ch].gr[gr].big_values*2); i+=2) {
-      if      (i<region1Start) h = &ht[(*si).ch[ch].gr[gr].table_select[0]];
-      else if (i<region2Start) h = &ht[(*si).ch[ch].gr[gr].table_select[1]];
-           else                h = &ht[(*si).ch[ch].gr[gr].table_select[2]];
-      huffman_decoder(h, &x, &y, &v, &w);
-      is[i/SSLIMIT][i%SSLIMIT] = x;
-      is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = y;
-      }
+    /* Read bigvalues area. */
+    for (i=0; (unsigned int)i < ((*si).ch[ch].gr[gr].big_values*2); i+=2) {
+        if      (i<region1Start) h = &ht[(*si).ch[ch].gr[gr].table_select[0]];
+        else if (i<region2Start) h = &ht[(*si).ch[ch].gr[gr].table_select[1]];
+        else                h = &ht[(*si).ch[ch].gr[gr].table_select[2]];
+        huffman_decoder(h, &x, &y, &v, &w);
+        is[i/SSLIMIT][i%SSLIMIT] = x;
+        is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = y;
+    }
 
-   grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
-   currentBit = hsstell();
+    grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
+    currentBit = hsstell();
 
-   /* Read count1 area. */
-   h = &ht[(*si).ch[ch].gr[gr].count1table_select+32];
-   while ((hsstell() < part2_start + (*si).ch[ch].gr[gr].part2_3_length ) &&
-     ( i < SSLIMIT*SBLIMIT )) {
-      huffman_decoder(h, &x, &y, &v, &w);
-      is[i/SSLIMIT][i%SSLIMIT] = v;
-      is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = w;
-      is[(i+2)/SSLIMIT][(i+2)%SSLIMIT] = x;
-      is[(i+3)/SSLIMIT][(i+3)%SSLIMIT] = y;
-      i += 4;
-      }
+    /* Read count1 area. */
+    h = &ht[(*si).ch[ch].gr[gr].count1table_select+32];
+    while ((hsstell() < part2_start + (*si).ch[ch].gr[gr].part2_3_length ) &&
+            ( i < SSLIMIT*SBLIMIT )) {
+        huffman_decoder(h, &x, &y, &v, &w);
+        is[i/SSLIMIT][i%SSLIMIT] = v;
+        is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = w;
+        is[(i+2)/SSLIMIT][(i+2)%SSLIMIT] = x;
+        is[(i+3)/SSLIMIT][(i+3)%SSLIMIT] = y;
+        i += 4;
+    }
 
-   grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
-   currentBit = hsstell();
+    grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
+    currentBit = hsstell();
 
-   if (hsstell() > part2_start + (*si).ch[ch].gr[gr].part2_3_length)
-   {  i -=4;
-      rewindNbits(hsstell()-part2_start - (*si).ch[ch].gr[gr].part2_3_length);
-   }
+    if (hsstell() > part2_start + (*si).ch[ch].gr[gr].part2_3_length)
+    {  i -=4;
+        rewindNbits(hsstell()-part2_start - (*si).ch[ch].gr[gr].part2_3_length);
+    }
 
-   /* Dismiss stuffing Bits */
-   grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
-   currentBit = hsstell();
-   if ( currentBit < grBits )
-      hgetbits( grBits - currentBit );
+    /* Dismiss stuffing Bits */
+    grBits     = part2_start + (*si).ch[ch].gr[gr].part2_3_length;
+    currentBit = hsstell();
+    if ( currentBit < grBits )
+        hgetbits( grBits - currentBit );
 
-   /* Zero out rest. */
-   for (; i<SSLIMIT*SBLIMIT; i++)
-      is[i/SSLIMIT][i%SSLIMIT] = 0;
+    /* Zero out rest. */
+    for (; i<SSLIMIT*SBLIMIT; i++)
+        is[i/SSLIMIT][i%SSLIMIT] = 0;
 }
 
 
