@@ -1234,57 +1234,58 @@ void III_get_LSF_scale_data(
 
 
 
-void III_get_LSF_scale_factors(scalefac, si, gr, ch, fr_ps)
-III_scalefac_t *scalefac;
-III_side_info_t *si;
-int gr, ch;
-frame_params *fr_ps;
+void III_get_LSF_scale_factors(
+    III_scalefac_t         *scalefac,
+    III_side_info_t        *si,
+    int                     gr,
+    int                     ch,
+    frame_params           *fr_ps)
 {
-int sfb, k = 0, window;
-struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
- 
-     III_get_LSF_scale_data(si, gr, ch, fr_ps);
+    int sfb, k = 0, window;
+    struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
+
+    III_get_LSF_scale_data(si, gr, ch, fr_ps);
 
 
     if (gr_info->window_switching_flag && (gr_info->block_type == 2)) { 
-      if (gr_info->mixed_block_flag) 
-      {                                       /* MIXED */ /* NEW - ag 11/25 */
-         for (sfb = 0; sfb < 8; sfb++)
-         {
-              (*scalefac)[ch].l[sfb] = scalefac_buffer[k];
-              k++;
-         } 
-         for (sfb = 3; sfb < 12; sfb++)
-            for (window=0; window<3; window++)
+        if (gr_info->mixed_block_flag) 
+        {                                       /* MIXED */ /* NEW - ag 11/25 */
+            for (sfb = 0; sfb < 8; sfb++)
             {
-               (*scalefac)[ch].s[window][sfb] = scalefac_buffer[k];
-               k++;
-            }
+                (*scalefac)[ch].l[sfb] = scalefac_buffer[k];
+                k++;
+            } 
+            for (sfb = 3; sfb < 12; sfb++)
+                for (window=0; window<3; window++)
+                {
+                    (*scalefac)[ch].s[window][sfb] = scalefac_buffer[k];
+                    k++;
+                }
             for (sfb=12,window=0; window<3; window++)
-                     (*scalefac)[ch].s[window][sfb] = 0;
+                (*scalefac)[ch].s[window][sfb] = 0;
 
-       }
-       else {  /* SHORT*/
-           for (sfb = 0; sfb < 12; sfb++)
-               for (window=0; window<3; window++)
-               {
-                  (*scalefac)[ch].s[window][sfb] = scalefac_buffer[k];
-                  k++;
-               }
-               for (sfb=12,window=0; window<3; window++)
-                                   (*scalefac)[ch].s[window][sfb] = 0;
-      }
+        }
+        else {  /* SHORT*/
+            for (sfb = 0; sfb < 12; sfb++)
+                for (window=0; window<3; window++)
+                {
+                    (*scalefac)[ch].s[window][sfb] = scalefac_buffer[k];
+                    k++;
+                }
+            for (sfb=12,window=0; window<3; window++)
+                (*scalefac)[ch].s[window][sfb] = 0;
+        }
     }          
     else {   /* LONG types 0,1,3 */
 
-           for (sfb = 0; sfb < 21; sfb++)
-            {
-                  (*scalefac)[ch].l[sfb] = scalefac_buffer[k];
-                   k++;
-            }
-            (*scalefac)[ch].l[22] = 0; 
+        for (sfb = 0; sfb < 21; sfb++)
+        {
+            (*scalefac)[ch].l[sfb] = scalefac_buffer[k];
+            k++;
+        }
+        (*scalefac)[ch].l[22] = 0; 
 
-     
+
     }
 }
 
