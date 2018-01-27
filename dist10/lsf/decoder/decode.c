@@ -2032,24 +2032,25 @@ void III_hybrid(
 
 /* Return the number of slots for main data of current frame, */
 
-int main_data_slots(fr_ps)
-frame_params fr_ps;
-{int nSlots;
+int main_data_slots(
+    frame_params            fr_ps)
+{
+    int nSlots;
 
-   nSlots = (144 * bitrate[fr_ps.header->version][2][fr_ps.header->bitrate_index])
-	    / s_freq[fr_ps.header->version][fr_ps.header->sampling_frequency];
-  if ( fr_ps.header->version != MPEG_PHASE2_LSF ) {
-       if (fr_ps.stereo == 1) nSlots -= 17; else nSlots -=32;
-  }
-  else
-  {
-      nSlots = nSlots / 2;
-      if (fr_ps.stereo == 1) nSlots -= 9; else nSlots -=17;
-  }
+    nSlots = (144 * bitrate[fr_ps.header->version][2][fr_ps.header->bitrate_index])
+        / s_freq[fr_ps.header->version][fr_ps.header->sampling_frequency];
+    if ( fr_ps.header->version != MPEG_PHASE2_LSF ) {
+        if (fr_ps.stereo == 1) nSlots -= 17; else nSlots -=32;
+    }
+    else
+    {
+        nSlots = nSlots / 2;
+        if (fr_ps.stereo == 1) nSlots -= 9; else nSlots -=17;
+    }
 
-  if (fr_ps.header->padding) nSlots++;
-      nSlots -= 4;
-  if (fr_ps.header->error_protection) nSlots -= 2;
+    if (fr_ps.header->padding) nSlots++;
+    nSlots -= 4;
+    if (fr_ps.header->error_protection) nSlots -= 2;
 
-  return(nSlots);
+    return(nSlots);
 }
