@@ -861,19 +861,19 @@ void buffer_CRC(
     *old_crc = getbits(bs, 16);
 }
 
-void  recover_CRC_error(pcm_sample, error_count, fr_ps, outFile, psampFrames)
-short FAR pcm_sample[2][SSLIMIT][SBLIMIT];
-int error_count;
-frame_params *fr_ps;
-FILE *outFile;
-unsigned long *psampFrames;
+void recover_CRC_error(
+    short FAR               pcm_sample[2][SSLIMIT][SBLIMIT],
+    int                     error_count,
+    frame_params           *fr_ps,
+    FILE                   *outFile,
+    unsigned long          *psampFrames)
 {
-    int  stereo = fr_ps->stereo;
-    int  num, done, i;
-    int  samplesPerFrame, samplesPerSlot;
-    layer  *hdr = fr_ps->header;
-    long  offset;
-    short  *temp;
+    int stereo = fr_ps->stereo;
+    int num, done, i;
+    int samplesPerFrame, samplesPerSlot;
+    layer *hdr = fr_ps->header;
+    long offset;
+    short *temp;
 
     num = 3;
     if (hdr->lay == 1) num = 1;
@@ -906,115 +906,120 @@ unsigned long *psampFrames;
 
 /************************* Layer III routines **********************/
 
-void III_get_side_info(bs, si, fr_ps)
-Bit_stream_struc *bs;
-III_side_info_t *si;
-frame_params *fr_ps;
+void III_get_side_info(
+    Bit_stream_struc       *bs,
+    III_side_info_t        *si,
+    frame_params           *fr_ps)
 {
    int ch, gr, i;
    int stereo = fr_ps->stereo;
    
-   if(fr_ps->header->version != MPEG_PHASE2_LSF)
-   {
-      si->main_data_begin = getbits(bs, 9);
-      if (stereo == 1)
-         si->private_bits = getbits(bs,5);
-         else si->private_bits = getbits(bs,3);
+   if(fr_ps->header->version != MPEG_PHASE2_LSF) {
+       si->main_data_begin = getbits(bs, 9);
 
-       for (ch=0; ch<stereo; ch++)
+       if (stereo == 1)
+           si->private_bits = getbits(bs,5);
+       else
+           si->private_bits = getbits(bs,3);
+
+       for (ch=0; ch<stereo; ch++) {
            for (i=0; i<4; i++)
-           si->ch[ch].scfsi[i] = get1bit(bs);
- 
+               si->ch[ch].scfsi[i] = get1bit(bs);
+       }
   
-        for (gr=0; gr< 2 ; gr++) {
+       for (gr=0; gr< 2 ; gr++) {
            for (ch=0; ch<stereo; ch++) {
-              si->ch[ch].gr[gr].part2_3_length = getbits(bs, 12);
-              si->ch[ch].gr[gr].big_values = getbits(bs, 9);
-              si->ch[ch].gr[gr].global_gain = getbits(bs, 8);
-              si->ch[ch].gr[gr].scalefac_compress = getbits(bs, 4);
-              si->ch[ch].gr[gr].window_switching_flag = get1bit(bs);
-              if (si->ch[ch].gr[gr].window_switching_flag) {
-                 si->ch[ch].gr[gr].block_type = getbits(bs, 2);
-                 si->ch[ch].gr[gr].mixed_block_flag = get1bit(bs);
-                 for (i=0; i<2; i++)
-                    si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
-                 for (i=0; i<3; i++)
-                    si->ch[ch].gr[gr].subblock_gain[i] = getbits(bs, 3);
+               si->ch[ch].gr[gr].part2_3_length = getbits(bs, 12);
+               si->ch[ch].gr[gr].big_values = getbits(bs, 9);
+               si->ch[ch].gr[gr].global_gain = getbits(bs, 8);
+               si->ch[ch].gr[gr].scalefac_compress = getbits(bs, 4);
+               si->ch[ch].gr[gr].window_switching_flag = get1bit(bs);
+               if (si->ch[ch].gr[gr].window_switching_flag) {
+                   si->ch[ch].gr[gr].block_type = getbits(bs, 2);
+                   si->ch[ch].gr[gr].mixed_block_flag = get1bit(bs);
+                   for (i=0; i<2; i++)
+                       si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
+                   for (i=0; i<3; i++)
+                       si->ch[ch].gr[gr].subblock_gain[i] = getbits(bs, 3);
+
+                   /* Set region_count parameters since they are implicit in this case. */
+
+                   if (si->ch[ch].gr[gr].block_type == 0) {
+                       printf("Side info bad: block_type == 0 in split block.\n");
+                       exit(0);
+                   }
+                   else if (si->ch[ch].gr[gr].block_type == 2 && si->ch[ch].gr[gr].mixed_block_flag == 0)
+                       si->ch[ch].gr[gr].region0_count = 8; /* MI 9; */
+                   else
+                       si->ch[ch].gr[gr].region0_count = 7; /* MI 8; */
+
+                   si->ch[ch].gr[gr].region1_count = 20 - si->ch[ch].gr[gr].region0_count;
+               }
+               else {
+                   for (i=0; i<3; i++)
+                       si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
+
+                   si->ch[ch].gr[gr].region0_count = getbits(bs, 4);
+                   si->ch[ch].gr[gr].region1_count = getbits(bs, 3);
+                   si->ch[ch].gr[gr].block_type = 0;
+               }
+
+               si->ch[ch].gr[gr].preflag = get1bit(bs);
+               si->ch[ch].gr[gr].scalefac_scale = get1bit(bs);
+               si->ch[ch].gr[gr].count1table_select = get1bit(bs);
+           }
+       }
+   }     
+   else { /* Layer 3 LSF */
+       si->main_data_begin = getbits(bs, 8);
+
+       if (stereo == 1)
+           si->private_bits = getbits(bs,1);
+       else
+           si->private_bits = getbits(bs,2);
+
+       for (gr=0; gr< 1 ; gr++) {
+           for (ch=0; ch<stereo; ch++) {
+               si->ch[ch].gr[gr].part2_3_length = getbits(bs, 12);
+               si->ch[ch].gr[gr].big_values = getbits(bs, 9);
+               si->ch[ch].gr[gr].global_gain = getbits(bs, 8);
+               si->ch[ch].gr[gr].scalefac_compress = getbits(bs, 9);
+               si->ch[ch].gr[gr].window_switching_flag = get1bit(bs);
+               if (si->ch[ch].gr[gr].window_switching_flag) {
+                   si->ch[ch].gr[gr].block_type = getbits(bs, 2);
+                   si->ch[ch].gr[gr].mixed_block_flag = get1bit(bs);
+                   for (i=0; i<2; i++)
+                       si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
+                   for (i=0; i<3; i++)
+                       si->ch[ch].gr[gr].subblock_gain[i] = getbits(bs, 3);
                
             /* Set region_count parameters since they are implicit in this case. */
             
-                 if (si->ch[ch].gr[gr].block_type == 0) {
-                   printf("Side info bad: block_type == 0 in split block.\n");
-                   exit(0);
-                 }
-                 else if (si->ch[ch].gr[gr].block_type == 2
-                      && si->ch[ch].gr[gr].mixed_block_flag == 0)
-                             si->ch[ch].gr[gr].region0_count = 8; /* MI 9; */
-                 else si->ch[ch].gr[gr].region0_count = 7; /* MI 8; */
-                      si->ch[ch].gr[gr].region1_count = 20 -
-						si->ch[ch].gr[gr].region0_count;
-             }
-            else {
-               for (i=0; i<3; i++)
-                   si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
-               si->ch[ch].gr[gr].region0_count = getbits(bs, 4);
-               si->ch[ch].gr[gr].region1_count = getbits(bs, 3);
-               si->ch[ch].gr[gr].block_type = 0;
-            }      
-         si->ch[ch].gr[gr].preflag = get1bit(bs);
-         si->ch[ch].gr[gr].scalefac_scale = get1bit(bs);
-         si->ch[ch].gr[gr].count1table_select = get1bit(bs);
-         }
-      }
-    }     
-    else /* Layer 3 LSF */
-    {     
-        si->main_data_begin = getbits(bs, 8);
-        if (stereo == 1)
-                 si->private_bits = getbits(bs,1);
-         else si->private_bits = getbits(bs,2);
+                   if (si->ch[ch].gr[gr].block_type == 0) {
+                       printf("Side info bad: block_type == 0 in split block.\n");
+                       exit(0);
+                   }
+                   else if (si->ch[ch].gr[gr].block_type == 2 && si->ch[ch].gr[gr].mixed_block_flag == 0)
+                       si->ch[ch].gr[gr].region0_count = 8; /* MI 9; */
+                   else
+                       si->ch[ch].gr[gr].region0_count = 7; /* MI 8; */
 
-        for (gr=0; gr< 1 ; gr++) {
-           for (ch=0; ch<stereo; ch++) {
-              si->ch[ch].gr[gr].part2_3_length = getbits(bs, 12);
-              si->ch[ch].gr[gr].big_values = getbits(bs, 9);
-              si->ch[ch].gr[gr].global_gain = getbits(bs, 8);
-              si->ch[ch].gr[gr].scalefac_compress = getbits(bs, 9);
-              si->ch[ch].gr[gr].window_switching_flag = get1bit(bs);
-              if (si->ch[ch].gr[gr].window_switching_flag) {
-                 si->ch[ch].gr[gr].block_type = getbits(bs, 2);
-                 si->ch[ch].gr[gr].mixed_block_flag = get1bit(bs);
-                 for (i=0; i<2; i++)
-                    si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
-                 for (i=0; i<3; i++)
-                    si->ch[ch].gr[gr].subblock_gain[i] = getbits(bs, 3);
-               
-            /* Set region_count parameters since they are implicit in this case. */
-            
-                 if (si->ch[ch].gr[gr].block_type == 0) {
-                   printf("Side info bad: block_type == 0 in split block.\n");
-                   exit(0);
-                 }
-                 else if (si->ch[ch].gr[gr].block_type == 2
-                      && si->ch[ch].gr[gr].mixed_block_flag == 0)
-                             si->ch[ch].gr[gr].region0_count = 8; /* MI 9; */
-                 else si->ch[ch].gr[gr].region0_count = 7; /* MI 8; */
-                      si->ch[ch].gr[gr].region1_count = 20 - si->ch[ch].gr[gr].region0_count;
+                   si->ch[ch].gr[gr].region1_count = 20 - si->ch[ch].gr[gr].region0_count;
+               }
+               else {
+                   for (i=0; i<3; i++)
+                       si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
 
-              }
-              else {
-                for (i=0; i<3; i++)
-                   si->ch[ch].gr[gr].table_select[i] = getbits(bs, 5);
-               si->ch[ch].gr[gr].region0_count = getbits(bs, 4);
-               si->ch[ch].gr[gr].region1_count = getbits(bs, 3);
-               si->ch[ch].gr[gr].block_type = 0;
-              }      
+                   si->ch[ch].gr[gr].region0_count = getbits(bs, 4);
+                   si->ch[ch].gr[gr].region1_count = getbits(bs, 3);
+                   si->ch[ch].gr[gr].block_type = 0;
+               }      
 
-         si->ch[ch].gr[gr].scalefac_scale = get1bit(bs);
-         si->ch[ch].gr[gr].count1table_select = get1bit(bs);
-         }
-     }
-  }
+               si->ch[ch].gr[gr].scalefac_scale = get1bit(bs);
+               si->ch[ch].gr[gr].count1table_select = get1bit(bs);
+           }
+       }
+   }
 }
 
 void III_put_side_info(bs, si, fr_ps)
