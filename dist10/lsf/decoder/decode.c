@@ -1113,121 +1113,122 @@ static unsigned nr_of_sfb_block[6][3][4] =
     {{ 8, 8, 5, 0},{15,12, 9, 0},{ 6,18, 9, 0}}};
 static unsigned scalefac_buffer[54];
 
-void III_get_LSF_scale_data(si, gr, ch, fr_ps)
-III_side_info_t *si;
-int gr, ch;
-frame_params *fr_ps;
+void III_get_LSF_scale_data(
+    III_side_info_t        *si,
+    int                     gr,
+    int                     ch,
+    frame_params           *fr_ps)
 {
-unsigned short i,j,k;
-unsigned short blocktypenumber, blocknumber;
+    unsigned short i,j,k;
+    unsigned short blocktypenumber, blocknumber;
 
-struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
-unsigned scalefac_comp, int_scalefac_comp, new_slen[4];
-   
-layer *hdr = fr_ps->header;
-scalefac_comp =  gr_info->scalefac_compress;
+    struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
+    unsigned scalefac_comp, int_scalefac_comp, new_slen[4];
+
+    layer *hdr = fr_ps->header;
+    scalefac_comp =  gr_info->scalefac_compress;
 
     blocktypenumber = 0;
     if ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0))
-                                                        blocktypenumber = 1;
+        blocktypenumber = 1;
 
-   if ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 1))
-                                                        blocktypenumber = 2;
+    if ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 1))
+        blocktypenumber = 2;
 
     if(!((( hdr->mode_ext == 1) || (hdr->mode_ext == 3)) && (ch == 1)))
     {
-	if(scalefac_comp < 400)
+        if(scalefac_comp < 400)
         {
-		new_slen[0] = (scalefac_comp >> 4) / 5 ;
-		new_slen[1] = (scalefac_comp >> 4) % 5 ;
-		new_slen[2] = (scalefac_comp % 16) >> 2 ;
-		new_slen[3] = (scalefac_comp % 4);
-                si->ch[ch].gr[gr].preflag = 0;
+            new_slen[0] = (scalefac_comp >> 4) / 5 ;
+            new_slen[1] = (scalefac_comp >> 4) % 5 ;
+            new_slen[2] = (scalefac_comp % 16) >> 2 ;
+            new_slen[3] = (scalefac_comp % 4);
+            si->ch[ch].gr[gr].preflag = 0;
 
-                blocknumber = 0;
-         }
+            blocknumber = 0;
+        }
 
-	else if( scalefac_comp  < 500)
+        else if( scalefac_comp  < 500)
         {
-		new_slen[0] = ((scalefac_comp - 400 )  >> 2) / 5 ;
-		new_slen[1] = ((scalefac_comp - 400) >> 2) % 5 ;
-		new_slen[2] = (scalefac_comp - 400 ) % 4 ;
-		new_slen[3] = 0;
-                si->ch[ch].gr[gr].preflag = 0;
-                blocknumber = 1;
+            new_slen[0] = ((scalefac_comp - 400 )  >> 2) / 5 ;
+            new_slen[1] = ((scalefac_comp - 400) >> 2) % 5 ;
+            new_slen[2] = (scalefac_comp - 400 ) % 4 ;
+            new_slen[3] = 0;
+            si->ch[ch].gr[gr].preflag = 0;
+            blocknumber = 1;
 
         }
 
-	else if( scalefac_comp  < 512)
+        else if( scalefac_comp  < 512)
         {
-		new_slen[0] = (scalefac_comp - 500 ) / 3 ;
-		new_slen[1] = (scalefac_comp - 500)  % 3 ;
-		new_slen[2] = 0 ;
-		new_slen[3] = 0;
-                si->ch[ch].gr[gr].preflag = 1;
-                blocknumber = 2;
+            new_slen[0] = (scalefac_comp - 500 ) / 3 ;
+            new_slen[1] = (scalefac_comp - 500)  % 3 ;
+            new_slen[2] = 0 ;
+            new_slen[3] = 0;
+            si->ch[ch].gr[gr].preflag = 1;
+            blocknumber = 2;
 
         }
-     }
+    }
 
     if((((hdr->mode_ext == 1) || (hdr->mode_ext == 3)) && (ch == 1)))
     {
-      /*   intensity_scale = scalefac_comp %2; */
-         int_scalefac_comp = scalefac_comp >> 1;
-	
+        /*   intensity_scale = scalefac_comp %2; */
+        int_scalefac_comp = scalefac_comp >> 1;
+
         if(int_scalefac_comp  < 180)
         {
-		new_slen[0] = int_scalefac_comp  / 36 ;
-		new_slen[1] = (int_scalefac_comp % 36 ) / 6 ;
-		new_slen[2] = (int_scalefac_comp % 36) % 6;
-		new_slen[3] = 0;
-                si->ch[ch].gr[gr].preflag = 0;
-                blocknumber = 3;
-
-         }
-
-	else if( int_scalefac_comp  < 244)
-        {
-		new_slen[0] = ((int_scalefac_comp - 180 )  % 64 ) >> 4 ;
-		new_slen[1] = ((int_scalefac_comp - 180) % 16) >> 2 ;
-		new_slen[2] = (int_scalefac_comp - 180 ) % 4 ;
-		new_slen[3] = 0;
-                si->ch[ch].gr[gr].preflag = 0;
-                blocknumber = 4;
+            new_slen[0] = int_scalefac_comp  / 36 ;
+            new_slen[1] = (int_scalefac_comp % 36 ) / 6 ;
+            new_slen[2] = (int_scalefac_comp % 36) % 6;
+            new_slen[3] = 0;
+            si->ch[ch].gr[gr].preflag = 0;
+            blocknumber = 3;
 
         }
 
-	else if( int_scalefac_comp  < 255)
+        else if( int_scalefac_comp  < 244)
         {
-		new_slen[0] = (int_scalefac_comp - 244 ) / 3 ;
-		new_slen[1] = (int_scalefac_comp - 244 )  % 3 ;
-		new_slen[2] = 0 ;
-		new_slen[3] = 0;
-                si->ch[ch].gr[gr].preflag = 0;
-                blocknumber = 5;
+            new_slen[0] = ((int_scalefac_comp - 180 )  % 64 ) >> 4 ;
+            new_slen[1] = ((int_scalefac_comp - 180) % 16) >> 2 ;
+            new_slen[2] = (int_scalefac_comp - 180 ) % 4 ;
+            new_slen[3] = 0;
+            si->ch[ch].gr[gr].preflag = 0;
+            blocknumber = 4;
 
         }
-     }
-     
-     for(i=0;i< 45;i++) scalefac_buffer[i] = 0;
 
-     k = 0;
-     for(i = 0;i < 4;i++)
-     { 
-      	for(j = 0; j < nr_of_sfb_block[blocknumber][blocktypenumber][i]; j++)
+        else if( int_scalefac_comp  < 255)
         {
-           if(new_slen[i] == 0)
-           {
-	        scalefac_buffer[k] = 0;
-           }
-           else
-           {   
-     	       scalefac_buffer[k] =  hgetbits(new_slen[i]);
-           }
-           k++;
- 
+            new_slen[0] = (int_scalefac_comp - 244 ) / 3 ;
+            new_slen[1] = (int_scalefac_comp - 244 )  % 3 ;
+            new_slen[2] = 0 ;
+            new_slen[3] = 0;
+            si->ch[ch].gr[gr].preflag = 0;
+            blocknumber = 5;
+
         }
-     }
+    }
+
+    for(i=0;i< 45;i++) scalefac_buffer[i] = 0;
+
+    k = 0;
+    for(i = 0;i < 4;i++)
+    { 
+        for(j = 0; j < nr_of_sfb_block[blocknumber][blocktypenumber][i]; j++)
+        {
+            if(new_slen[i] == 0)
+            {
+                scalefac_buffer[k] = 0;
+            }
+            else
+            {   
+                scalefac_buffer[k] =  hgetbits(new_slen[i]);
+            }
+            k++;
+
+        }
+    }
 
 }
 
