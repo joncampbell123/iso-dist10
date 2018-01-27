@@ -1055,39 +1055,44 @@ void III_get_scale_factors(
     int sfb, i, window;
     struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
 
-    if (gr_info->window_switching_flag && (gr_info->block_type == 2)) { 
-      if (gr_info->mixed_block_flag) { /* MIXED */ /* NEW - ag 11/25 */
-         for (sfb = 0; sfb < 8; sfb++)
-            (*scalefac)[ch].l[sfb] = hgetbits( 
-                 slen[0][gr_info->scalefac_compress]);
-         for (sfb = 3; sfb < 6; sfb++)
-            for (window=0; window<3; window++)
-               (*scalefac)[ch].s[window][sfb] = hgetbits(
-                 slen[0][gr_info->scalefac_compress]);
-         for (sfb = 6; sfb < 12; sfb++)
-            for (window=0; window<3; window++)
-               (*scalefac)[ch].s[window][sfb] = hgetbits(
-                 slen[1][gr_info->scalefac_compress]);
-         for (sfb=12,window=0; window<3; window++)
-            (*scalefac)[ch].s[window][sfb] = 0;
-      }
-      else {  /* SHORT*/
-         for (i=0; i<2; i++) 
-            for (sfb = sfbtable.s[i]; sfb < sfbtable.s[i+1]; sfb++)
-               for (window=0; window<3; window++)
-                  (*scalefac)[ch].s[window][sfb] = hgetbits( 
-                    slen[i][gr_info->scalefac_compress]);
-         for (sfb=12,window=0; window<3; window++)
-            (*scalefac)[ch].s[window][sfb] = 0;
-      }
+    if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
+        if (gr_info->mixed_block_flag) { /* MIXED */ /* NEW - ag 11/25 */
+            for (sfb = 0; sfb < 8; sfb++)
+                (*scalefac)[ch].l[sfb] = hgetbits( 
+                        slen[0][gr_info->scalefac_compress]);
+
+            for (sfb = 3; sfb < 6; sfb++)
+                for (window=0; window<3; window++)
+                    (*scalefac)[ch].s[window][sfb] = hgetbits(
+                            slen[0][gr_info->scalefac_compress]);
+
+            for (sfb = 6; sfb < 12; sfb++)
+                for (window=0; window<3; window++)
+                    (*scalefac)[ch].s[window][sfb] = hgetbits(
+                            slen[1][gr_info->scalefac_compress]);
+
+            for (sfb=12,window=0; window<3; window++)
+                (*scalefac)[ch].s[window][sfb] = 0;
+        }
+        else {  /* SHORT*/
+            for (i=0; i<2; i++) 
+                for (sfb = sfbtable.s[i]; sfb < sfbtable.s[i+1]; sfb++)
+                    for (window=0; window<3; window++)
+                        (*scalefac)[ch].s[window][sfb] = hgetbits( 
+                                slen[i][gr_info->scalefac_compress]);
+
+            for (sfb=12,window=0; window<3; window++)
+                (*scalefac)[ch].s[window][sfb] = 0;
+        }
     }          
     else {   /* LONG types 0,1,3 */
         for (i=0; i<4; i++) {
-           if ((si->ch[ch].scfsi[i] == 0) || (gr == 0))
-              for (sfb = sfbtable.l[i]; sfb < sfbtable.l[i+1]; sfb++)
-                  (*scalefac)[ch].l[sfb] = hgetbits(
-                 slen[(i<2)?0:1][gr_info->scalefac_compress]);
+            if ((si->ch[ch].scfsi[i] == 0) || (gr == 0))
+                for (sfb = sfbtable.l[i]; sfb < sfbtable.l[i+1]; sfb++)
+                    (*scalefac)[ch].l[sfb] = hgetbits(
+                            slen[(i<2)?0:1][gr_info->scalefac_compress]);
         }
+
         (*scalefac)[ch].l[22] = 0; 
     }
 }
