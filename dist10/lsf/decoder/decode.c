@@ -1046,15 +1046,14 @@ struct  {
     {{0,4,8,12,16,20,24,30,36,44,54,66,82,102,126,156,194,240,296,364,448,550,576},
      {0,4,8,12,16,22,30,42,58,78,104,138,180,192}}};
 
-
-
-void III_get_scale_factors(scalefac, si, gr, ch)
-III_scalefac_t *scalefac;
-III_side_info_t *si;
-int gr, ch;
+void III_get_scale_factors(
+    III_scalefac_t         *scalefac,
+    III_side_info_t        *si,
+    int                     gr,
+    int                     ch)
 {
-int sfb, i, window;
-struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
+    int sfb, i, window;
+    struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
 
     if (gr_info->window_switching_flag && (gr_info->block_type == 2)) { 
       if (gr_info->mixed_block_flag) { /* MIXED */ /* NEW - ag 11/25 */
