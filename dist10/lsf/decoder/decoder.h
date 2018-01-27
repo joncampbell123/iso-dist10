@@ -150,11 +150,6 @@ extern void   III_get_side_info(Bit_stream_struc *,
                                  III_side_info_t *,
                                  frame_params *);
 
-extern void   III_put_side_info(Bit_stream_struc *,
-                                 III_side_info_t *,
-                                 frame_params *);
-
-
 extern void III_get_scale_factors(III_scalefac_t *,
                                  III_side_info_t *, 
                                  int, 
