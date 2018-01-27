@@ -244,6 +244,8 @@
 #define         BINARY          0
 #define         ASCII           1
 
+#define         BS_FORMAT       BINARY  /* why the hell would I want ASCII output??? */
+
 #ifndef BS_FORMAT
 #define         BS_FORMAT       ASCII /* BINARY or ASCII = 2x bytes */
 #endif
