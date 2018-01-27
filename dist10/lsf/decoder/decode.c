@@ -1407,627 +1407,627 @@ void III_hufman_decode(
 
 int pretab[22] = {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,3,3,3,2,0};
 
-void III_dequantize_sample(is,xr,scalefac,gr_info, ch,fr_ps)
-long int is[SBLIMIT][SSLIMIT];
-double xr[SBLIMIT][SSLIMIT];
-struct gr_info_s *gr_info;
-III_scalefac_t *scalefac;
-frame_params *fr_ps;
-int ch;
+void III_dequantize_sample(
+    long int                is[SBLIMIT][SSLIMIT],
+    double                  xr[SBLIMIT][SSLIMIT],
+    III_scalefac_t         *scalefac,
+    struct gr_info_s       *gr_info,
+    int                     ch,
+    frame_params           *fr_ps)
 {
-   int ss,sb,cb=0,sfreq;
-   int next_cb_boundary, cb_begin, cb_width, sign;
+    int ss,sb,cb=0,sfreq;
+    int next_cb_boundary, cb_begin, cb_width, sign;
 
-   sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
 
-   /* choose correct scalefactor band per block type, initalize boundary */
+    /* choose correct scalefactor band per block type, initalize boundary */
 
-   if (gr_info->window_switching_flag && (gr_info->block_type == 2) )
-      if (gr_info->mixed_block_flag) 
-         next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
-      else {
-         next_cb_boundary=sfBandIndex[sfreq].s[1]*3; /* pure SHORT block */
-    cb_width = sfBandIndex[sfreq].s[1];
-    cb_begin = 0;
-      }  
-   else 
-      next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+    if (gr_info->window_switching_flag && (gr_info->block_type == 2) )
+        if (gr_info->mixed_block_flag) 
+            next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+        else {
+            next_cb_boundary=sfBandIndex[sfreq].s[1]*3; /* pure SHORT block */
+            cb_width = sfBandIndex[sfreq].s[1];
+            cb_begin = 0;
+        }  
+    else 
+        next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
 
-   /* apply formula per block type */
+    /* apply formula per block type */
 
-   for (sb=0 ; sb < SBLIMIT ; sb++)
-      for (ss=0 ; ss < SSLIMIT ; ss++) {
+    for (sb=0 ; sb < SBLIMIT ; sb++)
+        for (ss=0 ; ss < SSLIMIT ; ss++) {
 
-         if ( (sb*18)+ss == next_cb_boundary)  { /* Adjust critical band boundary */
-            if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
-               if (gr_info->mixed_block_flag)  {
-                  if (((sb*18)+ss) == sfBandIndex[sfreq].l[8])  {
-                     next_cb_boundary=sfBandIndex[sfreq].s[4]*3; 
-                     cb = 3;
-                     cb_width = sfBandIndex[sfreq].s[cb+1] - 
+            if ( (sb*18)+ss == next_cb_boundary) { /* Adjust critical band boundary */
+                if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
+                    if (gr_info->mixed_block_flag) {
+                        if (((sb*18)+ss) == sfBandIndex[sfreq].l[8])  {
+                            next_cb_boundary=sfBandIndex[sfreq].s[4]*3; 
+                            cb = 3;
+                            cb_width = sfBandIndex[sfreq].s[cb+1] - 
                                 sfBandIndex[sfreq].s[cb];
-                     cb_begin = sfBandIndex[sfreq].s[cb]*3;      
-                  }
-                  else if (((sb*18)+ss) < sfBandIndex[sfreq].l[8]) 
-                     next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
-                  else {
-                     next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
-                     cb_width = sfBandIndex[sfreq].s[cb+1] - 
-                                    sfBandIndex[sfreq].s[cb];
-                     cb_begin = sfBandIndex[sfreq].s[cb]*3;      
-                  }   
-               }
-               else  {
-                  next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
-                  cb_width = sfBandIndex[sfreq].s[cb+1] - 
-                               sfBandIndex[sfreq].s[cb];
-                cb_begin = sfBandIndex[sfreq].s[cb]*3;      
-               } 
+                            cb_begin = sfBandIndex[sfreq].s[cb]*3;      
+                        }
+                        else if (((sb*18)+ss) < sfBandIndex[sfreq].l[8]) 
+                            next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
+                        else {
+                            next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
+                            cb_width = sfBandIndex[sfreq].s[cb+1] - 
+                                sfBandIndex[sfreq].s[cb];
+                            cb_begin = sfBandIndex[sfreq].s[cb]*3;      
+                        }   
+                    }
+                    else {
+                        next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
+                        cb_width = sfBandIndex[sfreq].s[cb+1] - 
+                            sfBandIndex[sfreq].s[cb];
+                        cb_begin = sfBandIndex[sfreq].s[cb]*3;      
+                    } 
+                }
+                else /* long blocks */
+                    next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
             }
-            else /* long blocks */
-               next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
-         }
 
-         /* Compute overall (global) scaling. */
+            /* Compute overall (global) scaling. */
 
-         xr[sb][ss] = pow( 2.0 , (0.25 * (gr_info->global_gain - 210.0)));
+            xr[sb][ss] = pow( 2.0 , (0.25 * (gr_info->global_gain - 210.0)));
 
-         /* Do long/short dependent scaling operations. */
-        
-         if (gr_info->window_switching_flag && (
-            ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
-            ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
+            /* Do long/short dependent scaling operations. */
 
-            xr[sb][ss] *= pow(2.0, 0.25 * -8.0 * 
-                    gr_info->subblock_gain[(((sb*18)+ss) - cb_begin)/cb_width]);
-            xr[sb][ss] *= pow(2.0, 0.25 * -2.0 * (1.0+gr_info->scalefac_scale)
-              * (*scalefac)[ch].s[(((sb*18)+ss) - cb_begin)/cb_width][cb]);
-         }
-         else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
-            xr[sb][ss] *= pow(2.0, -0.5 * (1.0+gr_info->scalefac_scale)
-                                        * ((*scalefac)[ch].l[cb]
-                                        + gr_info->preflag * pretab[cb]));
-         }
+            if (gr_info->window_switching_flag && (
+                        ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
+                        ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
 
-         /* Scale quantized value. */
-        
-         sign = (is[sb][ss]<0) ? 1 : 0; 
-         xr[sb][ss] *= pow( (double) abs(is[sb][ss]), ((double)4.0/3.0) );
-         if (sign) xr[sb][ss] = -xr[sb][ss];
-      }
-}
-
-void III_reorder (xr, ro, gr_info, fr_ps) 
-double xr[SBLIMIT][SSLIMIT]; 
-double ro[SBLIMIT][SSLIMIT]; 
-struct gr_info_s *gr_info;
-frame_params *fr_ps;
-{
-   int sfreq;
-   int sfb, sfb_start, sfb_lines;
-   int sb, ss, window, freq, src_line, des_line;
-
-   sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
-
-   for(sb=0;sb<SBLIMIT;sb++)
-      for(ss=0;ss<SSLIMIT;ss++) 
-         ro[sb][ss] = 0;
-
-   if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
-      if (gr_info->mixed_block_flag) {
-         /* NO REORDER FOR LOW 2 SUBBANDS */
-         for (sb=0 ; sb < 2 ; sb++)
-            for (ss=0 ; ss < SSLIMIT ; ss++) {
-               ro[sb][ss] = xr[sb][ss];
+                xr[sb][ss] *= pow(2.0, 0.25 * -8.0 * 
+                        gr_info->subblock_gain[(((sb*18)+ss) - cb_begin)/cb_width]);
+                xr[sb][ss] *= pow(2.0, 0.25 * -2.0 * (1.0+gr_info->scalefac_scale)
+                        * (*scalefac)[ch].s[(((sb*18)+ss) - cb_begin)/cb_width][cb]);
             }
-         /* REORDERING FOR REST SWITCHED SHORT */
-         for(sfb=3,sfb_start=sfBandIndex[sfreq].s[3],
-            sfb_lines=sfBandIndex[sfreq].s[4] - sfb_start; 
-            sfb < 13; sfb++,sfb_start=sfBandIndex[sfreq].s[sfb],
-            (sfb_lines=sfBandIndex[sfreq].s[sfb+1] - sfb_start))
-               for(window=0; window<3; window++)
-                  for(freq=0;freq<sfb_lines;freq++) {
-                     src_line = sfb_start*3 + window*sfb_lines + freq; 
-                     des_line = (sfb_start*3) + window + (freq*3);
-                     ro[des_line/SSLIMIT][des_line%SSLIMIT] = 
-                                    xr[src_line/SSLIMIT][src_line%SSLIMIT];
-               }
-      } 
-      else {  /* pure short */
-         for(sfb=0,sfb_start=0,sfb_lines=sfBandIndex[sfreq].s[1]; 
-            sfb < 13; sfb++,sfb_start=sfBandIndex[sfreq].s[sfb],
-            (sfb_lines=sfBandIndex[sfreq].s[sfb+1] - sfb_start))
-               for(window=0; window<3; window++)
-                  for(freq=0;freq<sfb_lines;freq++) {
-                     src_line = sfb_start*3 + window*sfb_lines + freq; 
-                     des_line = (sfb_start*3) + window + (freq*3);
-                     ro[des_line/SSLIMIT][des_line%SSLIMIT] = 
-                                    xr[src_line/SSLIMIT][src_line%SSLIMIT];
-               }
-      }
-   }
-   else {   /*long blocks */
-      for (sb=0 ; sb < SBLIMIT ; sb++)
-         for (ss=0 ; ss < SSLIMIT ; ss++) 
-            ro[sb][ss] = xr[sb][ss];
-   }
+            else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
+                xr[sb][ss] *= pow(2.0, -0.5 * (1.0+gr_info->scalefac_scale)
+                        * ((*scalefac)[ch].l[cb]
+                            + gr_info->preflag * pretab[cb]));
+            }
+
+            /* Scale quantized value. */
+
+            sign = (is[sb][ss]<0) ? 1 : 0; 
+            xr[sb][ss] *= pow( (double) abs(is[sb][ss]), ((double)4.0/3.0) );
+            if (sign) xr[sb][ss] = -xr[sb][ss];
+        }
 }
 
-static void III_i_stereo_k_values(is_pos,io,i,k)
-double io;
-int is_pos,i;
-double FAR k[2][576];
-          
+void III_reorder(
+    double                  xr[SBLIMIT][SSLIMIT],
+    double                  ro[SBLIMIT][SSLIMIT],
+    struct gr_info_s       *gr_info,
+    frame_params           *fr_ps)
 {
-   if(is_pos == 0)
-   { 
-      k[0][i] = 1;
-      k[1][i] = 1;
-   }
-   else if ((is_pos % 2) == 1)
-   {
-      k[0][i] = pow(io,(double)((is_pos + 1)/2));
-      k[1][i] = 1;
-   }
-   else
-   {
-      k[0][i] = 1;
-      k[1][i] = pow(io,(double)(is_pos/2));
-   }
+    int sfreq;
+    int sfb, sfb_start, sfb_lines;
+    int sb, ss, window, freq, src_line, des_line;
+
+    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+
+    for(sb=0;sb<SBLIMIT;sb++)
+        for(ss=0;ss<SSLIMIT;ss++) 
+            ro[sb][ss] = 0;
+
+    if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
+        if (gr_info->mixed_block_flag) {
+            /* NO REORDER FOR LOW 2 SUBBANDS */
+            for (sb=0 ; sb < 2 ; sb++)
+                for (ss=0 ; ss < SSLIMIT ; ss++) {
+                    ro[sb][ss] = xr[sb][ss];
+                }
+            /* REORDERING FOR REST SWITCHED SHORT */
+            for(sfb=3,sfb_start=sfBandIndex[sfreq].s[3],
+                    sfb_lines=sfBandIndex[sfreq].s[4] - sfb_start; 
+                    sfb < 13; sfb++,sfb_start=sfBandIndex[sfreq].s[sfb],
+                    (sfb_lines=sfBandIndex[sfreq].s[sfb+1] - sfb_start))
+                for(window=0; window<3; window++)
+                    for(freq=0;freq<sfb_lines;freq++) {
+                        src_line = sfb_start*3 + window*sfb_lines + freq; 
+                        des_line = (sfb_start*3) + window + (freq*3);
+                        ro[des_line/SSLIMIT][des_line%SSLIMIT] = 
+                            xr[src_line/SSLIMIT][src_line%SSLIMIT];
+                    }
+        } 
+        else {  /* pure short */
+            for(sfb=0,sfb_start=0,sfb_lines=sfBandIndex[sfreq].s[1]; 
+                    sfb < 13; sfb++,sfb_start=sfBandIndex[sfreq].s[sfb],
+                    (sfb_lines=sfBandIndex[sfreq].s[sfb+1] - sfb_start))
+                for(window=0; window<3; window++)
+                    for(freq=0;freq<sfb_lines;freq++) {
+                        src_line = sfb_start*3 + window*sfb_lines + freq; 
+                        des_line = (sfb_start*3) + window + (freq*3);
+                        ro[des_line/SSLIMIT][des_line%SSLIMIT] = 
+                            xr[src_line/SSLIMIT][src_line%SSLIMIT];
+                    }
+        }
+    }
+    else {   /*long blocks */
+        for (sb=0 ; sb < SBLIMIT ; sb++)
+            for (ss=0 ; ss < SSLIMIT ; ss++) 
+                ro[sb][ss] = xr[sb][ss];
+    }
 }
 
-
-void III_stereo(xr, lr, scalefac, gr_info, fr_ps)
-double xr[2][SBLIMIT][SSLIMIT];
-double lr[2][SBLIMIT][SSLIMIT];
-III_scalefac_t *scalefac;
-struct gr_info_s *gr_info;
-frame_params *fr_ps;
+static void III_i_stereo_k_values(
+    int                     is_pos,
+    double                  io,
+    int                     i,
+    double FAR              k[2][576])
 {
-   int sfreq;
-   int stereo = fr_ps->stereo;
-   int ms_stereo = (fr_ps->header->mode == MPG_MD_JOINT_STEREO) &&
-                   (fr_ps->header->mode_ext & 0x2); 
-   int i_stereo = (fr_ps->header->mode == MPG_MD_JOINT_STEREO) &&
-                  (fr_ps->header->mode_ext & 0x1);
-   int sfb;
-   int i,j,sb,ss,ch;
-   short is_pos[SBLIMIT*SSLIMIT]; 
-   double is_ratio[SBLIMIT*SSLIMIT];
-   double io;
-   double FAR k[2][SBLIMIT*SSLIMIT];
+    if(is_pos == 0)
+    { 
+        k[0][i] = 1;
+        k[1][i] = 1;
+    }
+    else if ((is_pos % 2) == 1)
+    {
+        k[0][i] = pow(io,(double)((is_pos + 1)/2));
+        k[1][i] = 1;
+    }
+    else
+    {
+        k[0][i] = 1;
+        k[1][i] = pow(io,(double)(is_pos/2));
+    }
+}
 
-   int lsf	= (fr_ps->header->version == MPEG_PHASE2_LSF);
+void III_stereo(
+    double                  xr[2][SBLIMIT][SSLIMIT],
+    double                  lr[2][SBLIMIT][SSLIMIT],
+    III_scalefac_t         *scalefac,
+    struct gr_info_s       *gr_info,
+    frame_params           *fr_ps)
+{
+    int sfreq;
+    int stereo = fr_ps->stereo;
+    int ms_stereo = (fr_ps->header->mode == MPG_MD_JOINT_STEREO) &&
+        (fr_ps->header->mode_ext & 0x2); 
+    int i_stereo = (fr_ps->header->mode == MPG_MD_JOINT_STEREO) &&
+        (fr_ps->header->mode_ext & 0x1);
+    int sfb;
+    int i,j,sb,ss,ch;
+    short is_pos[SBLIMIT*SSLIMIT]; 
+    double is_ratio[SBLIMIT*SSLIMIT];
+    double io;
+    double FAR k[2][SBLIMIT*SSLIMIT];
+
+    int lsf	= (fr_ps->header->version == MPEG_PHASE2_LSF);
 
     if(  (gr_info->scalefac_compress % 2) == 1)
-     {
-       io = (double)0.707106781188;
-     }
-     else
-     {
-       io = (double)0.840896415256;
-     }
+    {
+        io = (double)0.707106781188;
+    }
+    else
+    {
+        io = (double)0.840896415256;
+    }
 
 
-   sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
 
-  
-   /* intialization */
-   for ( i=0; i<SBLIMIT*SSLIMIT; i++ )
-      is_pos[i] = 7;
 
-   if ((stereo == 2) && i_stereo )
-   {  if (gr_info->window_switching_flag && (gr_info->block_type == 2))
-      {  if( gr_info->mixed_block_flag )
-         {  int max_sfb = 0;
+    /* intialization */
+    for ( i=0; i<SBLIMIT*SSLIMIT; i++ )
+        is_pos[i] = 7;
 
-            for ( j=0; j<3; j++ )
-            {  int sfbcnt;
-               sfbcnt = 2;
-               for( sfb=12; sfb >=3; sfb-- )
-               {  int lines;
-                  lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
-                  i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
-                  while ( lines > 0 )
-                  {  if ( xr[1][i/SSLIMIT][i%SSLIMIT] != 0.0 )
-                     {  sfbcnt = sfb;
-                        sfb = -10;
-                        lines = -10;
-                     }
-                     lines--;
-                     i--;
-                  }
-               }
-               sfb = sfbcnt + 1;
+    if ((stereo == 2) && i_stereo )
+    {  if (gr_info->window_switching_flag && (gr_info->block_type == 2))
+        {  if( gr_info->mixed_block_flag )
+            {  int max_sfb = 0;
 
-               if ( sfb > max_sfb )
-                  max_sfb = sfb;
+                for ( j=0; j<3; j++ )
+                {  int sfbcnt;
+                    sfbcnt = 2;
+                    for( sfb=12; sfb >=3; sfb-- )
+                    {  int lines;
+                        lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
+                        i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
+                        while ( lines > 0 )
+                        {  if ( xr[1][i/SSLIMIT][i%SSLIMIT] != 0.0 )
+                            {  sfbcnt = sfb;
+                                sfb = -10;
+                                lines = -10;
+                            }
+                            lines--;
+                            i--;
+                        }
+                    }
+                    sfb = sfbcnt + 1;
 
-               while( sfb<12 )
-               {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
-                  i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
-                  for ( ; sb > 0; sb--)
-                  {  is_pos[i] = (*scalefac)[1].s[j][sfb];
-                     if ( is_pos[i] != 7 ) {
-                         if( lsf )
-                         {
-                              III_i_stereo_k_values(is_pos[i],io,i,k);
-                         }
-                         else
-                         {
-                             is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
-                         }
-                     }
-                     i++;
-                  }
-                  sfb++;
-               }
+                    if ( sfb > max_sfb )
+                        max_sfb = sfb;
 
-               sb = sfBandIndex[sfreq].s[12]-sfBandIndex[sfreq].s[11];
-               sfb = 3*sfBandIndex[sfreq].s[11] + j * sb;
-               sb = sfBandIndex[sfreq].s[13]-sfBandIndex[sfreq].s[12];
+                    while( sfb<12 )
+                    {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
+                        i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
+                        for ( ; sb > 0; sb--)
+                        {  is_pos[i] = (*scalefac)[1].s[j][sfb];
+                            if ( is_pos[i] != 7 ) {
+                                if( lsf )
+                                {
+                                    III_i_stereo_k_values(is_pos[i],io,i,k);
+                                }
+                                else
+                                {
+                                    is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
+                                }
+                            }
+                            i++;
+                        }
+                        sfb++;
+                    }
 
-               i = 3*sfBandIndex[sfreq].s[11] + j * sb;
-               for ( ; sb > 0; sb-- )
-               {  is_pos[i] = is_pos[sfb];
-                  is_ratio[i] = is_ratio[sfb];
-                  k[0][i] = k[0][sfb];
-                  k[1][i] = k[1][sfb];
-                  i++;
-               }
-             }
-             if ( max_sfb <= 3 )
-             {  i = 2;
-                ss = 17;
-                sb = -1;
-                while ( i >= 0 )
-                {  if ( xr[1][i][ss] != 0.0 )
-                   {  sb = i*18+ss;
-                      i = -1;
-                   } else
-                   {  ss--;
-                      if ( ss < 0 )
-                      {  i--;
-                         ss = 17;
-                      }
-                   }
+                    sb = sfBandIndex[sfreq].s[12]-sfBandIndex[sfreq].s[11];
+                    sfb = 3*sfBandIndex[sfreq].s[11] + j * sb;
+                    sb = sfBandIndex[sfreq].s[13]-sfBandIndex[sfreq].s[12];
+
+                    i = 3*sfBandIndex[sfreq].s[11] + j * sb;
+                    for ( ; sb > 0; sb-- )
+                    {  is_pos[i] = is_pos[sfb];
+                        is_ratio[i] = is_ratio[sfb];
+                        k[0][i] = k[0][sfb];
+                        k[1][i] = k[1][sfb];
+                        i++;
+                    }
                 }
-                i = 0;
-                while ( sfBandIndex[sfreq].l[i] <= sb )
-                   i++;
-                sfb = i;
-                i = sfBandIndex[sfreq].l[i];
-                for ( ; sfb<8; sfb++ )
-                {  sb = sfBandIndex[sfreq].l[sfb+1]-sfBandIndex[sfreq].l[sfb];
-                   for ( ; sb > 0; sb--)
-                   {  is_pos[i] = (*scalefac)[1].l[sfb];
-                      if ( is_pos[i] != 7 ) {
-                         if ( lsf )
-                         {
-                              III_i_stereo_k_values(is_pos[i],io,i,k);
-                         }
-                         else
-                         {
-                             is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
-                         }
-                      }
-                      i++;
-                   }
+                if ( max_sfb <= 3 )
+                {  i = 2;
+                    ss = 17;
+                    sb = -1;
+                    while ( i >= 0 )
+                    {  if ( xr[1][i][ss] != 0.0 )
+                        {  sb = i*18+ss;
+                            i = -1;
+                        } else
+                        {  ss--;
+                            if ( ss < 0 )
+                            {  i--;
+                                ss = 17;
+                            }
+                        }
+                    }
+                    i = 0;
+                    while ( sfBandIndex[sfreq].l[i] <= sb )
+                        i++;
+                    sfb = i;
+                    i = sfBandIndex[sfreq].l[i];
+                    for ( ; sfb<8; sfb++ )
+                    {  sb = sfBandIndex[sfreq].l[sfb+1]-sfBandIndex[sfreq].l[sfb];
+                        for ( ; sb > 0; sb--)
+                        {  is_pos[i] = (*scalefac)[1].l[sfb];
+                            if ( is_pos[i] != 7 ) {
+                                if ( lsf )
+                                {
+                                    III_i_stereo_k_values(is_pos[i],io,i,k);
+                                }
+                                else
+                                {
+                                    is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
+                                }
+                            }
+                            i++;
+                        }
+                    }
                 }
-            }
-         } else
-         {  for ( j=0; j<3; j++ )
-            {  int sfbcnt;
-               sfbcnt = -1;
-               for( sfb=12; sfb >=0; sfb-- )
-               {  int lines;
-                  lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
-                  i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
-                  while ( lines > 0 )
-                  {  if ( xr[1][i/SSLIMIT][i%SSLIMIT] != 0.0 )
-                     {  sfbcnt = sfb;
-                        sfb = -10;
-                        lines = -10;
-                     }
-                     lines--;
-                     i--;
-                  }
-               }
-               sfb = sfbcnt + 1;
-               while( sfb<12 )
-               {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
-                  i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
-                  for ( ; sb > 0; sb--)
-                  {  is_pos[i] = (*scalefac)[1].s[j][sfb];
-                     if ( is_pos[i] != 7 ) {
-                         if( lsf )
-                         {
-                              III_i_stereo_k_values(is_pos[i],io,i,k);
-                         }
-                         else
-                         {
-                             is_ratio[i] = tan( (double)is_pos[i] * (PI / 12));
-                         }
-                     }
-                     i++;
-                  }
-                  sfb++;
-               }
-
-               sb = sfBandIndex[sfreq].s[12]-sfBandIndex[sfreq].s[11];
-               sfb = 3*sfBandIndex[sfreq].s[11] + j * sb;
-               sb = sfBandIndex[sfreq].s[13]-sfBandIndex[sfreq].s[12];
-
-               i = 3*sfBandIndex[sfreq].s[11] + j * sb;
-               for ( ; sb > 0; sb-- )
-               {  is_pos[i] = is_pos[sfb];
-                  is_ratio[i] = is_ratio[sfb];
-                  k[0][i] = k[0][sfb];
-                  k[1][i] = k[1][sfb];
-                  i++;
-               }
-            }
-         }
-      } else
-      {  i = 31;
-         ss = 17;
-         sb = 0;
-         while ( i >= 0 )
-         {  if ( xr[1][i][ss] != 0.0 )
-            {  sb = i*18+ss;
-               i = -1;
             } else
-            {  ss--;
-               if ( ss < 0 )
-               {  i--;
-                  ss = 17;
-               }
-            }
-         }
-         i = 0;
-         while ( sfBandIndex[sfreq].l[i] <= sb )
-            i++;
-         sfb = i;
-         i = sfBandIndex[sfreq].l[i];
-         for ( ; sfb<21; sfb++ )
-         {  sb = sfBandIndex[sfreq].l[sfb+1] - sfBandIndex[sfreq].l[sfb];
-            for ( ; sb > 0; sb--)
-            {  is_pos[i] = (*scalefac)[1].l[sfb];
-               if ( is_pos[i] != 7 ) {
-                     if( lsf )
-                     {
-                           III_i_stereo_k_values(is_pos[i],io,i,k);
-                     }
-                     else
-                     {
-                          is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
-                     }
-               }
-               i++;
-            }
-         }
-         sfb = sfBandIndex[sfreq].l[20];
-         for ( sb = 576 - sfBandIndex[sfreq].l[21]; sb > 0; sb-- )
-         {  is_pos[i] = is_pos[sfb];
-            is_ratio[i] = is_ratio[sfb];
-            k[0][i] = k[0][sfb];
-            k[1][i] = k[1][sfb];
-            i++;
-         }
-      }
-   }
+            {  for ( j=0; j<3; j++ )
+                {  int sfbcnt;
+                    sfbcnt = -1;
+                    for( sfb=12; sfb >=0; sfb-- )
+                    {  int lines;
+                        lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
+                        i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
+                        while ( lines > 0 )
+                        {  if ( xr[1][i/SSLIMIT][i%SSLIMIT] != 0.0 )
+                            {  sfbcnt = sfb;
+                                sfb = -10;
+                                lines = -10;
+                            }
+                            lines--;
+                            i--;
+                        }
+                    }
+                    sfb = sfbcnt + 1;
+                    while( sfb<12 )
+                    {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
+                        i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
+                        for ( ; sb > 0; sb--)
+                        {  is_pos[i] = (*scalefac)[1].s[j][sfb];
+                            if ( is_pos[i] != 7 ) {
+                                if( lsf )
+                                {
+                                    III_i_stereo_k_values(is_pos[i],io,i,k);
+                                }
+                                else
+                                {
+                                    is_ratio[i] = tan( (double)is_pos[i] * (PI / 12));
+                                }
+                            }
+                            i++;
+                        }
+                        sfb++;
+                    }
 
-   for(ch=0;ch<2;ch++)
-      for(sb=0;sb<SBLIMIT;sb++)
-         for(ss=0;ss<SSLIMIT;ss++) 
-            lr[ch][sb][ss] = 0;
+                    sb = sfBandIndex[sfreq].s[12]-sfBandIndex[sfreq].s[11];
+                    sfb = 3*sfBandIndex[sfreq].s[11] + j * sb;
+                    sb = sfBandIndex[sfreq].s[13]-sfBandIndex[sfreq].s[12];
 
-   if (stereo==2) 
-      for(sb=0;sb<SBLIMIT;sb++)
-         for(ss=0;ss<SSLIMIT;ss++) {
-            i = (sb*18)+ss;
-            if ( is_pos[i] == 7 ) {
-               if ( ms_stereo ) {
-                  lr[0][sb][ss] = (xr[0][sb][ss]+xr[1][sb][ss])/(double)1.41421356;
-                  lr[1][sb][ss] = (xr[0][sb][ss]-xr[1][sb][ss])/(double)1.41421356;
-               }
-               else {
-                  lr[0][sb][ss] = xr[0][sb][ss];
-                  lr[1][sb][ss] = xr[1][sb][ss];
-               }
-            }
-            else if (i_stereo ) {
-                if ( lsf )
-                {
-                  lr[0][sb][ss] = xr[0][sb][ss] * k[0][i];
-                  lr[1][sb][ss] = xr[0][sb][ss] * k[1][i]; 
-                }
-               else
-                {
-                  lr[0][sb][ss] = xr[0][sb][ss] * (is_ratio[i]/(1+is_ratio[i]));
-                  lr[1][sb][ss] = xr[0][sb][ss] * (1/(1+is_ratio[i])); 
+                    i = 3*sfBandIndex[sfreq].s[11] + j * sb;
+                    for ( ; sb > 0; sb-- )
+                    {  is_pos[i] = is_pos[sfb];
+                        is_ratio[i] = is_ratio[sfb];
+                        k[0][i] = k[0][sfb];
+                        k[1][i] = k[1][sfb];
+                        i++;
+                    }
                 }
             }
-            else {
-               printf("Error in streo processing\n");
+        } else
+        {  i = 31;
+            ss = 17;
+            sb = 0;
+            while ( i >= 0 )
+            {  if ( xr[1][i][ss] != 0.0 )
+                {  sb = i*18+ss;
+                    i = -1;
+                } else
+                {  ss--;
+                    if ( ss < 0 )
+                    {  i--;
+                        ss = 17;
+                    }
+                }
             }
-         }
-   else  /* mono , bypass xr[0][][] to lr[0][][]*/
-      for(sb=0;sb<SBLIMIT;sb++)
-         for(ss=0;ss<SSLIMIT;ss++)
-            lr[0][sb][ss] = xr[0][sb][ss];
+            i = 0;
+            while ( sfBandIndex[sfreq].l[i] <= sb )
+                i++;
+            sfb = i;
+            i = sfBandIndex[sfreq].l[i];
+            for ( ; sfb<21; sfb++ )
+            {  sb = sfBandIndex[sfreq].l[sfb+1] - sfBandIndex[sfreq].l[sfb];
+                for ( ; sb > 0; sb--)
+                {  is_pos[i] = (*scalefac)[1].l[sfb];
+                    if ( is_pos[i] != 7 ) {
+                        if( lsf )
+                        {
+                            III_i_stereo_k_values(is_pos[i],io,i,k);
+                        }
+                        else
+                        {
+                            is_ratio[i] = tan((double)is_pos[i] * (PI / 12));
+                        }
+                    }
+                    i++;
+                }
+            }
+            sfb = sfBandIndex[sfreq].l[20];
+            for ( sb = 576 - sfBandIndex[sfreq].l[21]; sb > 0; sb-- )
+            {  is_pos[i] = is_pos[sfb];
+                is_ratio[i] = is_ratio[sfb];
+                k[0][i] = k[0][sfb];
+                k[1][i] = k[1][sfb];
+                i++;
+            }
+        }
+    }
+
+    for(ch=0;ch<2;ch++)
+        for(sb=0;sb<SBLIMIT;sb++)
+            for(ss=0;ss<SSLIMIT;ss++) 
+                lr[ch][sb][ss] = 0;
+
+    if (stereo==2) 
+        for(sb=0;sb<SBLIMIT;sb++)
+            for(ss=0;ss<SSLIMIT;ss++) {
+                i = (sb*18)+ss;
+                if ( is_pos[i] == 7 ) {
+                    if ( ms_stereo ) {
+                        lr[0][sb][ss] = (xr[0][sb][ss]+xr[1][sb][ss])/(double)1.41421356;
+                        lr[1][sb][ss] = (xr[0][sb][ss]-xr[1][sb][ss])/(double)1.41421356;
+                    }
+                    else {
+                        lr[0][sb][ss] = xr[0][sb][ss];
+                        lr[1][sb][ss] = xr[1][sb][ss];
+                    }
+                }
+                else if (i_stereo ) {
+                    if ( lsf )
+                    {
+                        lr[0][sb][ss] = xr[0][sb][ss] * k[0][i];
+                        lr[1][sb][ss] = xr[0][sb][ss] * k[1][i]; 
+                    }
+                    else
+                    {
+                        lr[0][sb][ss] = xr[0][sb][ss] * (is_ratio[i]/(1+is_ratio[i]));
+                        lr[1][sb][ss] = xr[0][sb][ss] * (1/(1+is_ratio[i])); 
+                    }
+                }
+                else {
+                    printf("Error in streo processing\n");
+                }
+            }
+    else  /* mono , bypass xr[0][][] to lr[0][][]*/
+        for(sb=0;sb<SBLIMIT;sb++)
+            for(ss=0;ss<SSLIMIT;ss++)
+                lr[0][sb][ss] = xr[0][sb][ss];
 
 }
 
 double Ci[8]={-0.6,-0.535,-0.33,-0.185,-0.095,-0.041,-0.0142,-0.0037};
 
 
-void III_antialias(xr, hybridIn, gr_info)
-double xr[SBLIMIT][SSLIMIT];    
-double hybridIn[SBLIMIT][SSLIMIT];
-struct gr_info_s *gr_info;             
+void III_antialias(
+    double                  xr[SBLIMIT][SSLIMIT],
+    double                  hybridIn[SBLIMIT][SSLIMIT],
+    struct gr_info_s       *gr_info)
 {
-   static int    init = 1;
-   static double ca[8],cs[8];
-   double        bu,bd;  /* upper and lower butterfly inputs */
-   int           ss,sb,sblim;
+    static int    init = 1;
+    static double ca[8],cs[8];
+    double        bu,bd;  /* upper and lower butterfly inputs */
+    int           ss,sb,sblim;
 
-   if (init) {
-      int i;
-      double    sq;
-      for (i=0;i<8;i++) {
-         sq=sqrt(1.0+Ci[i]*Ci[i]);
-         cs[i] = 1.0/sq;
-         ca[i] = Ci[i]/sq;
-      }
-      init = 0;
-   }
-   
-   /* clear all inputs */  
-      
+    if (init) {
+        int i;
+        double    sq;
+        for (i=0;i<8;i++) {
+            sq=sqrt(1.0+Ci[i]*Ci[i]);
+            cs[i] = 1.0/sq;
+            ca[i] = Ci[i]/sq;
+        }
+        init = 0;
+    }
+
+    /* clear all inputs */  
+
     for(sb=0;sb<SBLIMIT;sb++)
-       for(ss=0;ss<SSLIMIT;ss++)
-          hybridIn[sb][ss] = xr[sb][ss];
+        for(ss=0;ss<SSLIMIT;ss++)
+            hybridIn[sb][ss] = xr[sb][ss];
 
-   if  (gr_info->window_switching_flag && (gr_info->block_type == 2) &&
-       !gr_info->mixed_block_flag ) return;
+    if  (gr_info->window_switching_flag && (gr_info->block_type == 2) &&
+            !gr_info->mixed_block_flag ) return;
 
-   if ( gr_info->window_switching_flag && gr_info->mixed_block_flag &&
-     (gr_info->block_type == 2))
-      sblim = 1;
-   else
-      sblim = SBLIMIT-1;
+    if ( gr_info->window_switching_flag && gr_info->mixed_block_flag &&
+            (gr_info->block_type == 2))
+        sblim = 1;
+    else
+        sblim = SBLIMIT-1;
 
-   /* 31 alias-reduction operations between each pair of sub-bands */
-   /* with 8 butterflies between each pair                         */
+    /* 31 alias-reduction operations between each pair of sub-bands */
+    /* with 8 butterflies between each pair                         */
 
-   for(sb=0;sb<sblim;sb++)   
-      for(ss=0;ss<8;ss++) {      
-         bu = xr[sb][17-ss];
-         bd = xr[sb+1][ss];
-         hybridIn[sb][17-ss] = (bu * cs[ss]) - (bd * ca[ss]);
-         hybridIn[sb+1][ss] = (bd * cs[ss]) + (bu * ca[ss]);
-         }  
+    for(sb=0;sb<sblim;sb++)   
+        for(ss=0;ss<8;ss++) {      
+            bu = xr[sb][17-ss];
+            bd = xr[sb+1][ss];
+            hybridIn[sb][17-ss] = (bu * cs[ss]) - (bd * ca[ss]);
+            hybridIn[sb+1][ss] = (bd * cs[ss]) + (bu * ca[ss]);
+        }  
 }
 
-void inv_mdct(in, out, block_type)
-double in[18];
-double out[36];
-int block_type;
+void inv_mdct(
+    double                  in[18],
+    double                  out[36],
+    int                     block_type)
 {
-/*------------------------------------------------------------------*/
-/*                                                                  */
-/*    Function: Calculation of the inverse MDCT                     */
-/*    In the case of short blocks the 3 output vectors are already  */
-/*    overlapped and added in this modul.                           */
-/*                                                                  */
-/*    New layer3                                                    */
-/*                                                                  */
-/*------------------------------------------------------------------*/
+    /*------------------------------------------------------------------*/
+    /*                                                                  */
+    /*    Function: Calculation of the inverse MDCT                     */
+    /*    In the case of short blocks the 3 output vectors are already  */
+    /*    overlapped and added in this modul.                           */
+    /*                                                                  */
+    /*    New layer3                                                    */
+    /*                                                                  */
+    /*------------------------------------------------------------------*/
 
-int     i,m,N,p;
-double  tmp[12],sum;
-static  double  win[4][36];
-static  int init=0;
-static  double COS[4*36];
+    int     i,m,N,p;
+    double  tmp[12],sum;
+    static  double  win[4][36];
+    static  int init=0;
+    static  double COS[4*36];
 
     if(init==0){
 
-    /* type 0 */
-      for(i=0;i<36;i++)
-         win[0][i] = sin( PI/36 *(i+0.5) );
+        /* type 0 */
+        for(i=0;i<36;i++)
+            win[0][i] = sin( PI/36 *(i+0.5) );
 
-    /* type 1*/
-      for(i=0;i<18;i++)
-         win[1][i] = sin( PI/36 *(i+0.5) );
-      for(i=18;i<24;i++)
-         win[1][i] = 1.0;
-      for(i=24;i<30;i++)
-         win[1][i] = sin( PI/12 *(i+0.5-18) );
-      for(i=30;i<36;i++)
-         win[1][i] = 0.0;
+        /* type 1*/
+        for(i=0;i<18;i++)
+            win[1][i] = sin( PI/36 *(i+0.5) );
+        for(i=18;i<24;i++)
+            win[1][i] = 1.0;
+        for(i=24;i<30;i++)
+            win[1][i] = sin( PI/12 *(i+0.5-18) );
+        for(i=30;i<36;i++)
+            win[1][i] = 0.0;
 
-    /* type 3*/
-      for(i=0;i<6;i++)
-         win[3][i] = 0.0;
-      for(i=6;i<12;i++)
-         win[3][i] = sin( PI/12 *(i+0.5-6) );
-      for(i=12;i<18;i++)
-         win[3][i] =1.0;
-      for(i=18;i<36;i++)
-         win[3][i] = sin( PI/36*(i+0.5) );
+        /* type 3*/
+        for(i=0;i<6;i++)
+            win[3][i] = 0.0;
+        for(i=6;i<12;i++)
+            win[3][i] = sin( PI/12 *(i+0.5-6) );
+        for(i=12;i<18;i++)
+            win[3][i] =1.0;
+        for(i=18;i<36;i++)
+            win[3][i] = sin( PI/36*(i+0.5) );
 
-    /* type 2*/
-      for(i=0;i<12;i++)
-         win[2][i] = sin( PI/12*(i+0.5) ) ;
-      for(i=12;i<36;i++)
-         win[2][i] = 0.0 ;
+        /* type 2*/
+        for(i=0;i<12;i++)
+            win[2][i] = sin( PI/12*(i+0.5) ) ;
+        for(i=12;i<36;i++)
+            win[2][i] = 0.0 ;
 
-      for (i=0; i<4*36; i++)
-         COS[i] = cos(PI/(2*36) * i);
+        for (i=0; i<4*36; i++)
+            COS[i] = cos(PI/(2*36) * i);
 
-      init++;
+        init++;
     }
 
     for(i=0;i<36;i++)
-       out[i]=0;
+        out[i]=0;
 
     if(block_type == 2){
-       N=12;
-       for(i=0;i<3;i++){
-          for(p= 0;p<N;p++){
-             sum = 0.0;
-             for(m=0;m<N/2;m++)
-                sum += in[i+3*m] * cos( PI/(2*N)*(2*p+1+N/2)*(2*m+1) );
-             tmp[p] = sum * win[block_type][p] ;
-          }
-          for(p=0;p<N;p++)
-             out[6*i+p+6] += tmp[p];
-       }
+        N=12;
+        for(i=0;i<3;i++){
+            for(p= 0;p<N;p++){
+                sum = 0.0;
+                for(m=0;m<N/2;m++)
+                    sum += in[i+3*m] * cos( PI/(2*N)*(2*p+1+N/2)*(2*m+1) );
+                tmp[p] = sum * win[block_type][p] ;
+            }
+            for(p=0;p<N;p++)
+                out[6*i+p+6] += tmp[p];
+        }
     }
     else{
-      N=36;
-      for(p= 0;p<N;p++){
-         sum = 0.0;
-         for(m=0;m<N/2;m++)
-           sum += in[m] * COS[((2*p+1+N/2)*(2*m+1))%(4*36)];
-         out[p] = sum * win[block_type][p];
-      }
+        N=36;
+        for(p= 0;p<N;p++){
+            sum = 0.0;
+            for(m=0;m<N/2;m++)
+                sum += in[m] * COS[((2*p+1+N/2)*(2*m+1))%(4*36)];
+            out[p] = sum * win[block_type][p];
+        }
     }
 }
 
-void III_hybrid(fsIn, tsOut ,sb, ch, gr_info)
-double fsIn[SSLIMIT];   /* freq samples per subband in */
-double tsOut[SSLIMIT];  /* time samples per subband out */
-int sb, ch;
-struct gr_info_s *gr_info;             
+void III_hybrid(
+    double                  fsIn[SSLIMIT],  /* freq samples per subband in */
+    double                  tsOut[SSLIMIT], /* time samples per subband out */
+    int                     sb,
+    int                     ch,
+    struct gr_info_s       *gr_info)
 {
-   int ss;
-   double rawout[36];
-   static double prevblck[2][SBLIMIT][SSLIMIT];
-   static int init = 1;
-   int bt;
+    int ss;
+    double rawout[36];
+    static double prevblck[2][SBLIMIT][SSLIMIT];
+    static int init = 1;
+    int bt;
 
-   if (init) {
-      int i,j,k;
-      
-      for(i=0;i<2;i++)
-         for(j=0;j<SBLIMIT;j++)
-            for(k=0;k<SSLIMIT;k++)
-               prevblck[i][j][k]=0.0;
-      init = 0;
-   }
+    if (init) {
+        int i,j,k;
 
-   bt = (gr_info->window_switching_flag && gr_info->mixed_block_flag &&
-          (sb < 2)) ? 0 : gr_info->block_type; 
+        for(i=0;i<2;i++)
+            for(j=0;j<SBLIMIT;j++)
+                for(k=0;k<SSLIMIT;k++)
+                    prevblck[i][j][k]=0.0;
+        init = 0;
+    }
 
-   inv_mdct( fsIn, rawout, bt);
+    bt = (gr_info->window_switching_flag && gr_info->mixed_block_flag &&
+            (sb < 2)) ? 0 : gr_info->block_type; 
 
-   /* overlap addition */
-   for(ss=0; ss<SSLIMIT; ss++) {
-      tsOut[ss] = rawout[ss] + prevblck[ch][sb][ss];
-      prevblck[ch][sb][ss] = rawout[ss+18];
-   }
+    inv_mdct( fsIn, rawout, bt);
+
+    /* overlap addition */
+    for(ss=0; ss<SSLIMIT; ss++) {
+        tsOut[ss] = rawout[ss] + prevblck[ch][sb][ss];
+        prevblck[ch][sb][ss] = rawout[ss+18];
+    }
 }
 
 /* Return the number of slots for main data of current frame, */
