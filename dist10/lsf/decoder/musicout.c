@@ -124,6 +124,8 @@ int side_info_slots();
 
 /* Implementations */
 
+#define CONFIDENCE_THRESHHOLD 8
+
 int main(argc, argv)
 int argc;
 char **argv;
@@ -143,9 +145,16 @@ typedef double VE[2][HAN_SIZE];
     layer             info;
     FILE              *musicout;
     unsigned long     sample_frames;
-    unsigned long     lock_sampling_frequency = 0;
-    unsigned char     lock_version = 0;
+
+    int               lock_sampling_frequency = -1;
+    unsigned char     lock_version = ~0;
     signed char       lock_stereo = -1;
+
+    int               last_sampling_frequency = -1;
+    unsigned char     last_version = ~0;
+    signed char       last_stereo = -1;
+
+    unsigned char     format_confidence = 0;
 
     int               i, j, k, stereo, done=FALSE, clip, sync; 
     int               error_protection, crc_error_count, total_error_count;
@@ -250,14 +259,22 @@ if (frameNum == 0 && Arguments.need_esps) {
        fprintf(stderr, "{%4lu}", frameNum++); fflush(stderr); 
        if (error_protection) buffer_CRC(&bs, &old_crc);
 
-        if (lock_sampling_frequency == 0 && info.version != 0 && info.sampling_frequency != 3)
-            lock_sampling_frequency = info.sampling_frequency;
+       if ((last_sampling_frequency == info.sampling_frequency) &&
+           (last_version            == info.version) &&
+           (last_stereo             == stereo)) {
+           if ((++format_confidence) == CONFIDENCE_THRESHHOLD) {
+               lock_sampling_frequency = info.sampling_frequency;
+               lock_version = info.version;
+               lock_stereo = stereo;
+           }
+       }
+       else if (format_confidence < CONFIDENCE_THRESHHOLD) {
+           format_confidence = 0;
+       }
 
-        if (lock_version == 0)
-            lock_version = info.version;
-
-       if (lock_stereo < 0)
-           lock_stereo = stereo;
+        last_sampling_frequency = info.sampling_frequency;
+        last_version = info.version;
+        last_stereo = stereo;
 
        switch (info.lay) {
 
