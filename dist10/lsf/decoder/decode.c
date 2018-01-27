@@ -805,46 +805,49 @@ int SubBandSynthesis(
     return(clip);
 }
 
-void out_fifo(pcm_sample, num, fr_ps, done, outFile, psampFrames)
-short FAR pcm_sample[2][SSLIMIT][SBLIMIT];
-int num;
-frame_params *fr_ps;
-int done;
-FILE *outFile;
-unsigned long *psampFrames;
+void out_fifo(
+    short FAR               pcm_sample[2][SSLIMIT][SBLIMIT],
+    int                     num,
+    frame_params           *fr_ps,
+    int                     done,
+    FILE                   *outFile,
+    unsigned long          *psampFrames)
 {
     int i,j,l;
     int stereo = fr_ps->stereo;
     static short int outsamp[1600];
     static long k = 0;
 
-    if (!done)
-        for (i=0;i<num;i++) for (j=0;j<SBLIMIT;j++) {
-            (*psampFrames)++;
-            for (l=0;l<stereo;l++) {
-                if (!(k%1600) && k) {
-		    /*
-		      Samples are big-endian. If this is a little-endian machine
-		      we must swap
-		      */
-		    if ( NativeByteOrder == order_unknown )
-		    {
-			NativeByteOrder = DetermineByteOrder();
-			if ( NativeByteOrder == order_unknown )
-			{
-			    fprintf( stderr, "byte order not determined\n" );
-			    exit( 1 );
-			}
-		    }
-		    if ( NativeByteOrder == order_littleEndian )
-			SwapBytesInWords( outsamp, 1600 );
-		    
-                    fwrite(outsamp,2,1600,outFile);
-                    k = 0;
+    if (!done) {
+        for (i=0;i<num;i++) {
+            for (j=0;j<SBLIMIT;j++) {
+                (*psampFrames)++;
+                for (l=0;l<stereo;l++) {
+                    if (!(k%1600) && k) {
+                        /*
+                           Samples are big-endian. If this is a little-endian machine
+                           we must swap
+                           */
+                        if ( NativeByteOrder == order_unknown ) {
+                            NativeByteOrder = DetermineByteOrder();
+                            if ( NativeByteOrder == order_unknown ) {
+                                fprintf( stderr, "byte order not determined\n" );
+                                exit( 1 );
+                            }
+                        }
+
+                        if ( NativeByteOrder == order_littleEndian )
+                            SwapBytesInWords( outsamp, 1600 );
+
+                        fwrite(outsamp,2,1600,outFile);
+                        k = 0;
+                    }
+
+                    outsamp[k++] = pcm_sample[l][i][j];
                 }
-                outsamp[k++] = pcm_sample[l][i][j];
             }
         }
+    }
     else {
         fwrite(outsamp,2,(int)k,outFile);
         k = 0;
