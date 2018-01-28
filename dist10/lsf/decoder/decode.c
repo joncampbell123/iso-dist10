@@ -1413,11 +1413,11 @@ static const double two_to_the_power_025_lookup[4] = {
 };
 
 /* consolidate pow(2.0, x) calls below */
-double two_to_the_power_025(int x) {
+static inline double two_to_the_power_025(int x) {
     /* pow(2.0, 0.25 * x) */
     double r = ldexp(two_to_the_power_025_lookup[((unsigned int)x) & 3],(x - (x & 3)) / 4);
 
-#if 1 /* change to #if 1 to verify this optimization is correct */
+#if 0 /* change to #if 1 to verify this optimization is correct */
     {
         double verify_r = pow(2.0, 0.25 * x);
 
