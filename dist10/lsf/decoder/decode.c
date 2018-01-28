@@ -1416,9 +1416,13 @@ void III_dequantize_sample(
     frame_params           *fr_ps)
 {
     int ss,sb,cb=0,sfreq;
+    double global_gain_comp;
     int next_cb_boundary, cb_begin, cb_width, sign;
 
     sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+
+    /* global gain */
+    global_gain_comp = pow(2.0, (0.25 * (gr_info->global_gain - 210.0)));
 
     /* choose correct scalefactor band per block type, initalize boundary */
 
@@ -1470,7 +1474,7 @@ void III_dequantize_sample(
 
             /* Compute overall (global) scaling. */
 
-            xr[sb][ss] = pow(2.0, (0.25 * (gr_info->global_gain - 210.0)));
+            xr[sb][ss] = global_gain_comp;
 
             /* Do long/short dependent scaling operations. */
 
