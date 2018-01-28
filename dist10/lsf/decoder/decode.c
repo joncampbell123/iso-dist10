@@ -1104,14 +1104,14 @@ void III_get_scale_factors(
 
 /****************** new MPEG2 stuf  ***********/
 
-static unsigned nr_of_sfb_block[6][3][4] =
+static unsigned char nr_of_sfb_block[6][3][4] =
    {{{ 6, 5, 5, 5},{ 9, 9, 9, 9},{ 6, 9, 9, 9}},
     {{ 6, 5, 7, 3},{ 9, 9,12, 6},{ 6, 9,12, 6}},
     {{11,10, 0, 0},{18,18, 0, 0},{15,18, 0, 0}},
     {{ 7, 7, 7, 0},{12,12,12, 0},{ 6,15,12, 0}},
     {{ 6, 6, 6, 3},{12, 9, 9, 6},{ 6,12, 9, 6}},
     {{ 8, 8, 5, 0},{15,12, 9, 0},{ 6,18, 9, 0}}};
-static unsigned scalefac_buffer[54];
+static unsigned int scalefac_buffer[54];
 
 void III_get_LSF_scale_data(
     III_side_info_t        *si,
