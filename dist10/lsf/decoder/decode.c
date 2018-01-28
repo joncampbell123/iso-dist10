@@ -1418,20 +1418,23 @@ void III_dequantize_sample(
     int ss,sb,cb=0,sfreq;
     int next_cb_boundary, cb_begin, cb_width, sign;
 
-    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
+    sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
 
     /* choose correct scalefactor band per block type, initalize boundary */
 
-    if (gr_info->window_switching_flag && (gr_info->block_type == 2) )
-        if (gr_info->mixed_block_flag) 
-            next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+    if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
+        if (gr_info->mixed_block_flag) {
+            next_cb_boundary = sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+        }
         else {
-            next_cb_boundary=sfBandIndex[sfreq].s[1]*3; /* pure SHORT block */
+            next_cb_boundary = sfBandIndex[sfreq].s[1]*3; /* pure SHORT block */
             cb_width = sfBandIndex[sfreq].s[1];
             cb_begin = 0;
-        }  
-    else 
-        next_cb_boundary=sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+        }
+    }
+    else {
+        next_cb_boundary = sfBandIndex[sfreq].l[1];  /* LONG blocks: 0,1,3 */
+    }
 
     /* apply formula per block type */
 
