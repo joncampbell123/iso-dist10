@@ -2039,18 +2039,24 @@ int main_data_slots(
 
     nSlots = (144 * bitrate[fr_ps.header->version][2][fr_ps.header->bitrate_index])
         / s_freq[fr_ps.header->version][fr_ps.header->sampling_frequency];
-    if ( fr_ps.header->version != MPEG_PHASE2_LSF ) {
-        if (fr_ps.stereo == 1) nSlots -= 17; else nSlots -=32;
+
+    if (fr_ps.header->version != MPEG_PHASE2_LSF) {
+        if (fr_ps.stereo == 1)
+            nSlots -= 17;
+        else
+            nSlots -= 32;
     }
-    else
-    {
-        nSlots = nSlots / 2;
-        if (fr_ps.stereo == 1) nSlots -= 9; else nSlots -=17;
+    else {
+        nSlots /= 2;
+        if (fr_ps.stereo == 1)
+            nSlots -= 9;
+        else
+            nSlots -= 17;
     }
 
-    if (fr_ps.header->padding) nSlots++;
     nSlots -= 4;
+    if (fr_ps.header->padding) nSlots++;
     if (fr_ps.header->error_protection) nSlots -= 2;
 
-    return(nSlots);
+    return nSlots;
 }
