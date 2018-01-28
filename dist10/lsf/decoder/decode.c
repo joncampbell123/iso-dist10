@@ -1448,17 +1448,17 @@ void III_dequantize_sample(
                 if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
                     if (gr_info->mixed_block_flag) {
                         if (((sb*18)+ss) == sfBandIndex[sfreq].l[8]) {
-                            next_cb_boundary = sfBandIndex[sfreq].s[4]*3; 
+                            next_cb_boundary = sfBandIndex[sfreq].s[4]*3;
                             cb = 3;
                             cb_width = sfBandIndex[sfreq].s[cb+1] - sfBandIndex[sfreq].s[cb];
-                            cb_begin = sfBandIndex[sfreq].s[cb]*3;      
+                            cb_begin = sfBandIndex[sfreq].s[cb]*3;
                         }
                         else if (((sb*18)+ss) < sfBandIndex[sfreq].l[8]) 
                             next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
                         else {
                             next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
                             cb_width = sfBandIndex[sfreq].s[cb+1] - sfBandIndex[sfreq].s[cb];
-                            cb_begin = sfBandIndex[sfreq].s[cb]*3;      
+                            cb_begin = sfBandIndex[sfreq].s[cb]*3;
                         }
                     }
                     else {
