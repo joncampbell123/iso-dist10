@@ -1559,18 +1559,15 @@ static void III_i_stereo_k_values(
     int                     i,
     double FAR              k[2][576])
 {
-    if(is_pos == 0)
-    { 
+    if (is_pos == 0) {
         k[0][i] = 1;
         k[1][i] = 1;
     }
-    else if ((is_pos % 2) == 1)
-    {
+    else if ((is_pos % 2) == 1) {
         k[0][i] = pow(io,(double)((is_pos + 1)/2));
         k[1][i] = 1;
     }
-    else
-    {
+    else {
         k[0][i] = 1;
         k[1][i] = pow(io,(double)(is_pos/2));
     }
