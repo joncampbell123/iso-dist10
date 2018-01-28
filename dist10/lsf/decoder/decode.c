@@ -1595,21 +1595,15 @@ void III_stereo(
 
     int lsf	= (fr_ps->header->version == MPEG_PHASE2_LSF);
 
-    if(  (gr_info->scalefac_compress % 2) == 1)
-    {
+    if ((gr_info->scalefac_compress % 2) == 1)
         io = (double)0.707106781188;
-    }
     else
-    {
         io = (double)0.840896415256;
-    }
 
-
-    sfreq=fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
-
+    sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
 
     /* intialization */
-    for ( i=0; i<SBLIMIT*SSLIMIT; i++ )
+    for (i=0;i < SBLIMIT*SSLIMIT;i++)
         is_pos[i] = 7;
 
     if ((stereo == 2) && i_stereo )
