@@ -1111,7 +1111,7 @@ static unsigned char nr_of_sfb_block[6][3][4] =
     {{ 7, 7, 7, 0},{12,12,12, 0},{ 6,15,12, 0}},
     {{ 6, 6, 6, 3},{12, 9, 9, 6},{ 6,12, 9, 6}},
     {{ 8, 8, 5, 0},{15,12, 9, 0},{ 6,18, 9, 0}}};
-static unsigned int scalefac_buffer[54];
+static unsigned char scalefac_buffer[54];
 
 void III_get_LSF_scale_data(
     III_side_info_t        *si,
@@ -1123,7 +1123,8 @@ void III_get_LSF_scale_data(
     unsigned short blocktypenumber, blocknumber;
 
     struct gr_info_s *gr_info = &(si->ch[ch].gr[gr]);
-    unsigned scalefac_comp, int_scalefac_comp, new_slen[4];
+    unsigned scalefac_comp, int_scalefac_comp;
+    unsigned char new_slen[4];
 
     layer *hdr = fr_ps->header;
     scalefac_comp =  gr_info->scalefac_compress;
