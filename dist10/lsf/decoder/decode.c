@@ -1404,6 +1404,10 @@ void III_hufman_decode(
         is[i/SSLIMIT][i%SSLIMIT] = 0;
 }
 
+/* consolidate pow(2.0, x) calls below */
+double two_to_the_power_025(double x) {
+    return pow(2.0, 0.25 * x);
+}
 
 int pretab[22] = {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,3,3,3,2,0};
 
@@ -1422,7 +1426,7 @@ void III_dequantize_sample(
     sfreq = fr_ps->header->sampling_frequency + (fr_ps->header->version * 3);
 
     /* global gain */
-    global_gain_comp = pow(2.0, (0.25 * (gr_info->global_gain - 210.0)));
+    global_gain_comp = two_to_the_power_025(gr_info->global_gain - 210.0);
 
     /* choose correct scalefactor band per block type, initalize boundary */
 
@@ -1482,13 +1486,13 @@ void III_dequantize_sample(
                 ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
                 ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
 
-                xr[sb][ss] *= pow(2.0, 0.25 * -8.0 * 
+                xr[sb][ss] *= two_to_the_power_025(-8.0 * 
                         gr_info->subblock_gain[(((sb*18)+ss) - cb_begin)/cb_width]);
-                xr[sb][ss] *= pow(2.0, 0.25 * -2.0 * (1.0+gr_info->scalefac_scale)
+                xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
                         * (*scalefac)[ch].s[(((sb*18)+ss) - cb_begin)/cb_width][cb]);
             }
             else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
-                xr[sb][ss] *= pow(2.0, -0.5 * (1.0+gr_info->scalefac_scale)
+                xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
                         * ((*scalefac)[ch].l[cb] + gr_info->preflag * pretab[cb]));
             }
 
