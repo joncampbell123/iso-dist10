@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 int main() {
-    unsigned int i;
+    unsigned int i, j;
     double x, chk, dev;
 
     /* MPEG Layer III scales samples by x' = x^(4/3) so this code is written
@@ -34,6 +34,42 @@ int main() {
         if (fabs(dev) > 1e-9) {
             fprintf(stderr,"Precision error. x=%.11f chk=%.11f dev=%.20f\n",x,chk,dev);
             abort();
+        }
+    }
+
+    printf("------\n");
+    for (i=0;i < 20000;i++)
+        printf("%u ^ 1/3 = %.20f\n",i,pow(i,1.0 / 3));
+
+    printf("------\n");
+    for (j=0;j < 10;j++) {
+        unsigned int base;
+        unsigned int basen;
+        unsigned int basenn;
+        unsigned int c;
+
+        base = 1;
+        for (c=0;c < 3;c++)
+            base *= j;
+
+        basen = 1;
+        for (c=0;c < 3;c++)
+            basen *= j+1;
+
+        basenn = 1;
+        for (c=0;c < 3;c++)
+            basenn *= j+2;
+
+        printf("j=%u base=%u basen=%u basenn=%u\n",j,base,basen,basenn);
+        for (i=base;i <= basen;i++) {
+            double x = pow(i,1.0 / 3) - j;
+
+            printf("%u ^ 1/3 - %u = %.20f\n",i,base,x);
+
+            if (x < -(1e-11) || x > (1+(1e-11))) {
+                fprintf(stderr,"Precision error. x out of range.\n");
+                abort();
+            }
         }
     }
 
