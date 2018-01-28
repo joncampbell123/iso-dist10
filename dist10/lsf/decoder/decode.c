@@ -2011,15 +2011,16 @@ void III_hybrid(
     if (init) {
         int i,j,k;
 
-        for(i=0;i<2;i++)
-            for(j=0;j<SBLIMIT;j++)
-                for(k=0;k<SSLIMIT;k++)
-                    prevblck[i][j][k]=0.0;
         init = 0;
+        for (i=0;i<2;i++) {
+            for (j=0;j<SBLIMIT;j++) {
+                for (k=0;k<SSLIMIT;k++)
+                    prevblck[i][j][k]=0.0;
+            }
+        }
     }
 
-    bt = (gr_info->window_switching_flag && gr_info->mixed_block_flag &&
-            (sb < 2)) ? 0 : gr_info->block_type; 
+    bt = (gr_info->window_switching_flag && gr_info->mixed_block_flag && (sb < 2)) ? 0 : gr_info->block_type;
 
     inv_mdct( fsIn, rawout, bt);
 
