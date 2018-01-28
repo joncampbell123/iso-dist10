@@ -1485,15 +1485,16 @@ void III_dequantize_sample(
             if (gr_info->window_switching_flag && (
                 ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
                 ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
+                const unsigned int cb_sb = (((sb*18)+ss) - cb_begin) / cb_width;
 
                 xr[sb][ss] *= two_to_the_power_025(-8.0 * 
-                        gr_info->subblock_gain[(((sb*18)+ss) - cb_begin)/cb_width]);
+                    gr_info->subblock_gain[cb_sb]);
                 xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
-                        * (*scalefac)[ch].s[(((sb*18)+ss) - cb_begin)/cb_width][cb]);
+                    * (*scalefac)[ch].s[cb_sb][cb]);
             }
             else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
                 xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
-                        * ((*scalefac)[ch].l[cb] + gr_info->preflag * pretab[cb]));
+                    * ((*scalefac)[ch].l[cb] + gr_info->preflag * pretab[cb]));
             }
 
             /* Scale quantized value. */
