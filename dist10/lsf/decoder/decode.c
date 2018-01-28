@@ -1926,40 +1926,39 @@ void inv_mdct(
 
     int     i,m,N,p;
     double  tmp[12],sum;
-    static  double  win[4][36];
-    static  int init=0;
+    static  double win[4][36];
     static  double COS[4*36];
+    static  int init=0;
 
-    if(init==0){
-
+    if (init==0) {
         /* type 0 */
-        for(i=0;i<36;i++)
+        for (i=0;i<36;i++)
             win[0][i] = sin( PI/36 *(i+0.5) );
 
         /* type 1*/
-        for(i=0;i<18;i++)
+        for (i=0;i<18;i++)
             win[1][i] = sin( PI/36 *(i+0.5) );
-        for(i=18;i<24;i++)
+        for (i=18;i<24;i++)
             win[1][i] = 1.0;
-        for(i=24;i<30;i++)
+        for (i=24;i<30;i++)
             win[1][i] = sin( PI/12 *(i+0.5-18) );
-        for(i=30;i<36;i++)
+        for (i=30;i<36;i++)
             win[1][i] = 0.0;
 
         /* type 3*/
-        for(i=0;i<6;i++)
+        for (i=0;i<6;i++)
             win[3][i] = 0.0;
-        for(i=6;i<12;i++)
+        for (i=6;i<12;i++)
             win[3][i] = sin( PI/12 *(i+0.5-6) );
-        for(i=12;i<18;i++)
+        for (i=12;i<18;i++)
             win[3][i] =1.0;
-        for(i=18;i<36;i++)
+        for (i=18;i<36;i++)
             win[3][i] = sin( PI/36*(i+0.5) );
 
         /* type 2*/
-        for(i=0;i<12;i++)
+        for (i=0;i<12;i++)
             win[2][i] = sin( PI/12*(i+0.5) ) ;
-        for(i=12;i<36;i++)
+        for (i=12;i<36;i++)
             win[2][i] = 0.0 ;
 
         for (i=0; i<4*36; i++)
@@ -1968,28 +1967,31 @@ void inv_mdct(
         init++;
     }
 
-    for(i=0;i<36;i++)
+    for (i=0;i<36;i++)
         out[i]=0;
 
-    if(block_type == 2){
+    if (block_type == 2) {
         N=12;
-        for(i=0;i<3;i++){
-            for(p= 0;p<N;p++){
+        for (i=0;i<3;i++) {
+            for (p=0;p<N;p++) {
                 sum = 0.0;
-                for(m=0;m<N/2;m++)
+                for (m=0;m<N/2;m++)
                     sum += in[i+3*m] * cos( PI/(2*N)*(2*p+1+N/2)*(2*m+1) );
-                tmp[p] = sum * win[block_type][p] ;
+
+                tmp[p] = sum * win[block_type][p];
             }
-            for(p=0;p<N;p++)
+
+            for (p=0;p<N;p++)
                 out[6*i+p+6] += tmp[p];
         }
     }
-    else{
+    else {
         N=36;
-        for(p= 0;p<N;p++){
+        for (p=0;p<N;p++) {
             sum = 0.0;
-            for(m=0;m<N/2;m++)
+            for (m=0;m<N/2;m++)
                 sum += in[m] * COS[((2*p+1+N/2)*(2*m+1))%(4*36)];
+
             out[p] = sum * win[block_type][p];
         }
     }
