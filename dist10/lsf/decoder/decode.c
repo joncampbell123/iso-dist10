@@ -1406,7 +1406,7 @@ void III_hufman_decode(
 }
 
 /* consolidate pow(2.0, x) calls below */
-double two_to_the_power_025(double x) {
+double two_to_the_power_025(int x) {
     return pow(2.0, 0.25 * x);
 }
 
@@ -1488,13 +1488,12 @@ void III_dequantize_sample(
                 ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
                 const unsigned int cb_sb = (((sb*18)+ss) - cb_begin) / cb_width;
 
-                xr[sb][ss] *= two_to_the_power_025(-8.0 * 
-                    gr_info->subblock_gain[cb_sb]);
-                xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
+                xr[sb][ss] *= two_to_the_power_025(-8 * gr_info->subblock_gain[cb_sb]);
+                xr[sb][ss] *= two_to_the_power_025(-2 * (1 + gr_info->scalefac_scale)
                     * (*scalefac)[ch].s[cb_sb][cb]);
             }
             else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
-                xr[sb][ss] *= two_to_the_power_025(-2.0 * (1.0+gr_info->scalefac_scale)
+                xr[sb][ss] *= two_to_the_power_025(-2 * (1 + gr_info->scalefac_scale)
                     * ((*scalefac)[ch].l[cb] + gr_info->preflag * pretab[cb]));
             }
 
