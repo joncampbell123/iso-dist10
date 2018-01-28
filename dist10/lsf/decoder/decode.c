@@ -1438,48 +1438,45 @@ void III_dequantize_sample(
 
     /* apply formula per block type */
 
-    for (sb=0 ; sb < SBLIMIT ; sb++)
+    for (sb=0 ; sb < SBLIMIT ; sb++) {
         for (ss=0 ; ss < SSLIMIT ; ss++) {
-
-            if ( (sb*18)+ss == next_cb_boundary) { /* Adjust critical band boundary */
+            if (((sb*18)+ss) == next_cb_boundary) { /* Adjust critical band boundary */
                 if (gr_info->window_switching_flag && (gr_info->block_type == 2)) {
                     if (gr_info->mixed_block_flag) {
-                        if (((sb*18)+ss) == sfBandIndex[sfreq].l[8])  {
-                            next_cb_boundary=sfBandIndex[sfreq].s[4]*3; 
+                        if (((sb*18)+ss) == sfBandIndex[sfreq].l[8]) {
+                            next_cb_boundary = sfBandIndex[sfreq].s[4]*3; 
                             cb = 3;
-                            cb_width = sfBandIndex[sfreq].s[cb+1] - 
-                                sfBandIndex[sfreq].s[cb];
+                            cb_width = sfBandIndex[sfreq].s[cb+1] - sfBandIndex[sfreq].s[cb];
                             cb_begin = sfBandIndex[sfreq].s[cb]*3;      
                         }
                         else if (((sb*18)+ss) < sfBandIndex[sfreq].l[8]) 
                             next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
                         else {
                             next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
-                            cb_width = sfBandIndex[sfreq].s[cb+1] - 
-                                sfBandIndex[sfreq].s[cb];
+                            cb_width = sfBandIndex[sfreq].s[cb+1] - sfBandIndex[sfreq].s[cb];
                             cb_begin = sfBandIndex[sfreq].s[cb]*3;      
-                        }   
+                        }
                     }
                     else {
                         next_cb_boundary = sfBandIndex[sfreq].s[(++cb)+1]*3;
-                        cb_width = sfBandIndex[sfreq].s[cb+1] - 
-                            sfBandIndex[sfreq].s[cb];
-                        cb_begin = sfBandIndex[sfreq].s[cb]*3;      
-                    } 
+                        cb_width = sfBandIndex[sfreq].s[cb+1] - sfBandIndex[sfreq].s[cb];
+                        cb_begin = sfBandIndex[sfreq].s[cb]*3;
+                    }
                 }
-                else /* long blocks */
+                else { /* long blocks */
                     next_cb_boundary = sfBandIndex[sfreq].l[(++cb)+1];
+                }
             }
 
             /* Compute overall (global) scaling. */
 
-            xr[sb][ss] = pow( 2.0 , (0.25 * (gr_info->global_gain - 210.0)));
+            xr[sb][ss] = pow(2.0, (0.25 * (gr_info->global_gain - 210.0)));
 
             /* Do long/short dependent scaling operations. */
 
             if (gr_info->window_switching_flag && (
-                        ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
-                        ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
+                ((gr_info->block_type == 2) && (gr_info->mixed_block_flag == 0)) ||
+                ((gr_info->block_type == 2) && gr_info->mixed_block_flag && (sb >= 2)) )) {
 
                 xr[sb][ss] *= pow(2.0, 0.25 * -8.0 * 
                         gr_info->subblock_gain[(((sb*18)+ss) - cb_begin)/cb_width]);
@@ -1488,16 +1485,16 @@ void III_dequantize_sample(
             }
             else {   /* LONG block types 0,1,3 & 1st 2 subbands of switched blocks */
                 xr[sb][ss] *= pow(2.0, -0.5 * (1.0+gr_info->scalefac_scale)
-                        * ((*scalefac)[ch].l[cb]
-                            + gr_info->preflag * pretab[cb]));
+                        * ((*scalefac)[ch].l[cb] + gr_info->preflag * pretab[cb]));
             }
 
             /* Scale quantized value. */
 
             sign = (is[sb][ss]<0) ? 1 : 0; 
-            xr[sb][ss] *= pow( (double) abs(is[sb][ss]), ((double)4.0/3.0) );
+            xr[sb][ss] *= pow((double)abs(is[sb][ss]), ((double)4.0/3.0));
             if (sign) xr[sb][ss] = -xr[sb][ss];
         }
+    }
 }
 
 void III_reorder(
