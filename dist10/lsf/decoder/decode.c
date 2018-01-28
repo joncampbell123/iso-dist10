@@ -1608,13 +1608,13 @@ void III_stereo(
 
     if ((stereo == 2) && i_stereo )
     {  if (gr_info->window_switching_flag && (gr_info->block_type == 2))
-        {  if( gr_info->mixed_block_flag )
+        {  if ( gr_info->mixed_block_flag )
             {  int max_sfb = 0;
 
                 for ( j=0; j<3; j++ )
                 {  int sfbcnt;
                     sfbcnt = 2;
-                    for( sfb=12; sfb >=3; sfb-- )
+                    for ( sfb=12; sfb >=3; sfb-- )
                     {  int lines;
                         lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
                         i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
@@ -1633,7 +1633,7 @@ void III_stereo(
                     if ( sfb > max_sfb )
                         max_sfb = sfb;
 
-                    while( sfb<12 )
+                    while ( sfb<12 )
                     {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
                         i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
                         for ( ; sb > 0; sb--)
@@ -1709,7 +1709,7 @@ void III_stereo(
             {  for ( j=0; j<3; j++ )
                 {  int sfbcnt;
                     sfbcnt = -1;
-                    for( sfb=12; sfb >=0; sfb-- )
+                    for ( sfb=12; sfb >=0; sfb-- )
                     {  int lines;
                         lines = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
                         i = 3*sfBandIndex[sfreq].s[sfb] + (j+1) * lines - 1;
@@ -1724,7 +1724,7 @@ void III_stereo(
                         }
                     }
                     sfb = sfbcnt + 1;
-                    while( sfb<12 )
+                    while ( sfb<12 )
                     {  sb = sfBandIndex[sfreq].s[sfb+1]-sfBandIndex[sfreq].s[sfb];
                         i = 3*sfBandIndex[sfreq].s[sfb] + j * sb;
                         for ( ; sb > 0; sb--)
@@ -1784,7 +1784,7 @@ void III_stereo(
                 for ( ; sb > 0; sb--)
                 {  is_pos[i] = (*scalefac)[1].l[sfb];
                     if ( is_pos[i] != 7 ) {
-                        if( lsf )
+                        if ( lsf )
                         {
                             III_i_stereo_k_values(is_pos[i],io,i,k);
                         }
@@ -1807,14 +1807,14 @@ void III_stereo(
         }
     }
 
-    for(ch=0;ch<2;ch++)
-        for(sb=0;sb<SBLIMIT;sb++)
-            for(ss=0;ss<SSLIMIT;ss++) 
+    for (ch=0;ch<2;ch++)
+        for (sb=0;sb<SBLIMIT;sb++)
+            for (ss=0;ss<SSLIMIT;ss++) 
                 lr[ch][sb][ss] = 0;
 
     if (stereo==2) 
-        for(sb=0;sb<SBLIMIT;sb++)
-            for(ss=0;ss<SSLIMIT;ss++) {
+        for (sb=0;sb<SBLIMIT;sb++)
+            for (ss=0;ss<SSLIMIT;ss++) {
                 i = (sb*18)+ss;
                 if ( is_pos[i] == 7 ) {
                     if ( ms_stereo ) {
@@ -1843,10 +1843,9 @@ void III_stereo(
                 }
             }
     else  /* mono , bypass xr[0][][] to lr[0][][]*/
-        for(sb=0;sb<SBLIMIT;sb++)
-            for(ss=0;ss<SSLIMIT;ss++)
+        for (sb=0;sb<SBLIMIT;sb++)
+            for (ss=0;ss<SSLIMIT;ss++)
                 lr[0][sb][ss] = xr[0][sb][ss];
-
 }
 
 static double Ci[8] =
