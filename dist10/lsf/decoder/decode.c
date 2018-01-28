@@ -1405,9 +1405,32 @@ void III_hufman_decode(
         is[i/SSLIMIT][i%SSLIMIT] = 0;
 }
 
+static const double two_to_the_power_025_lookup[4] = {
+    1.000000000000000000,   /* 2^0.00 */
+    1.189207115002721027,   /* 2^0.25 */
+    1.414213562373095145,   /* 2^0.50 */
+    1.681792830507429004    /* 2^0.75 */
+};
+
 /* consolidate pow(2.0, x) calls below */
 double two_to_the_power_025(int x) {
-    return pow(2.0, 0.25 * x);
+    /* pow(2.0, 0.25 * x) */
+    double r = ldexp(two_to_the_power_025_lookup[((unsigned int)x) & 3],(x - (x & 3)) / 4);
+
+#if 1 /* change to #if 1 to verify this optimization is correct */
+    {
+        double verify_r = pow(2.0, 0.25 * x);
+
+        if (fabs(r - verify_r) > 1e-11) {
+            fprintf(stderr,
+                "two_to_the_power_025 precision failure "
+                "x=%d dev=%.11f opt=%.11f ver=%.11f\n",
+                x,r - verify_r,r,verify_r);
+        }
+    }
+#endif
+
+    return r;
 }
 
 static unsigned char pretab[22] = {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,3,3,3,2,0};
