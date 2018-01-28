@@ -1170,27 +1170,26 @@ Bit_stream_struc *bs;   /* bit stream structure */
   places the bit stream pointer right after the sync.
   This function returns 1 if the sync was found otherwise it returns 0  */
 int seek_sync(bs, sync, N)
-Bit_stream_struc *bs;   /* bit stream structure */
-long sync;      /* sync word maximum 32 bits */
-int N;          /* sync word length */
+    Bit_stream_struc       *bs;     /* bit stream structure */
+    unsigned long           sync;   /* sync word maximum 32 bits */
+    unsigned int            N;      /* sync word length */
 {
- double pow();
- unsigned long aligning, stell();
- unsigned long val;
- long maxi = (int)pow(2.0, (FLOAT)N) - 1;
+    unsigned long aligning, stell();
+    unsigned long maxi = (1UL << (unsigned long)N) - 1UL;
+    unsigned long val;
 
- aligning = sstell(bs)%ALIGNING;
- if (aligning)
-    getbits(bs, (int)(ALIGNING-aligning));
+    aligning = sstell(bs)%ALIGNING;
+    if (aligning)
+        getbits(bs, (int)(ALIGNING-aligning));
 
-  val = getbits(bs, N);
-  while (((val&maxi) != (unsigned long)sync) && (!end_bs(bs))) {
+    val = getbits(bs, N);
+    while ((val&maxi) != sync && !end_bs(bs)) {
         val <<= ALIGNING;
         val |= getbits(bs, ALIGNING);
-  }
+    }
 
- if (end_bs(bs)) return(0);
- else return(1);
+    if (end_bs(bs)) return(0);
+    else return(1);
 }
 /*****************************************************************************
 *

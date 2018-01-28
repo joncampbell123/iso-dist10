@@ -464,7 +464,7 @@ extern unsigned long  getbits(Bit_stream_struc*, int);
 extern void           putbits(Bit_stream_struc*, unsigned int, int);
 extern unsigned long  sstell(Bit_stream_struc*);
 extern int            end_bs(Bit_stream_struc*);
-extern int            seek_sync(Bit_stream_struc*, long, int);
+extern int            seek_sync(Bit_stream_struc*, unsigned long, unsigned int);
 extern void           skip_id3(Bit_stream_struc*);
 extern void           I_CRC_calc(frame_params*, unsigned int[2][SBLIMIT],
                         unsigned int*);
