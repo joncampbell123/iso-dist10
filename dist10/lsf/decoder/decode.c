@@ -1866,33 +1866,38 @@ void III_antialias(
     double                  hybridIn[SBLIMIT][SSLIMIT],
     struct gr_info_s       *gr_info)
 {
-    static int    init = 1;
-    static double ca[8],cs[8];
-    double        bu,bd;  /* upper and lower butterfly inputs */
-    int           ss,sb,sblim;
+    static int      init = 1;
+    static double   ca[8],cs[8];
+    double          bu,bd;  /* upper and lower butterfly inputs */
+    int             ss,sb,sblim;
 
     if (init) {
-        int i;
-        double    sq;
+        int         i;
+        double      sq;
+
+        init = 0;
         for (i=0;i<8;i++) {
             sq=sqrt(1.0+Ci[i]*Ci[i]);
             cs[i] = 1.0/sq;
             ca[i] = Ci[i]/sq;
         }
-        init = 0;
     }
 
     /* clear all inputs */  
 
-    for(sb=0;sb<SBLIMIT;sb++)
-        for(ss=0;ss<SSLIMIT;ss++)
+    for (sb=0;sb<SBLIMIT;sb++) {
+        for (ss=0;ss<SSLIMIT;ss++)
             hybridIn[sb][ss] = xr[sb][ss];
+    }
 
-    if  (gr_info->window_switching_flag && (gr_info->block_type == 2) &&
-            !gr_info->mixed_block_flag ) return;
+    if (gr_info->window_switching_flag &&
+        (gr_info->block_type == 2) &&
+        !gr_info->mixed_block_flag)
+        return;
 
-    if ( gr_info->window_switching_flag && gr_info->mixed_block_flag &&
-            (gr_info->block_type == 2))
+    if (gr_info->window_switching_flag &&
+        gr_info->mixed_block_flag &&
+        (gr_info->block_type == 2))
         sblim = 1;
     else
         sblim = SBLIMIT-1;
@@ -1900,13 +1905,14 @@ void III_antialias(
     /* 31 alias-reduction operations between each pair of sub-bands */
     /* with 8 butterflies between each pair                         */
 
-    for(sb=0;sb<sblim;sb++)   
-        for(ss=0;ss<8;ss++) {      
+    for (sb=0;sb<sblim;sb++) {
+        for (ss=0;ss<8;ss++) {      
             bu = xr[sb][17-ss];
             bd = xr[sb+1][ss];
             hybridIn[sb][17-ss] = (bu * cs[ss]) - (bd * ca[ss]);
             hybridIn[sb+1][ss] = (bd * cs[ss]) + (bu * ca[ss]);
-        }  
+        }
+    }
 }
 
 void inv_mdct(
