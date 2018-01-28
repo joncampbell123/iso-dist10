@@ -1433,6 +1433,10 @@ static inline double two_to_the_power_025(int x) {
     return r;
 }
 
+double x_to_the_power_of_4_3rds(double x) {
+    return pow(x, ((double)4.0/3.0));
+}
+
 static unsigned char pretab[22] = {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,3,3,3,2,0};
 
 void III_dequantize_sample(
@@ -1523,7 +1527,7 @@ void III_dequantize_sample(
             /* Scale quantized value. */
 
             sign = (is[sb][ss]<0) ? 1 : 0; 
-            xr[sb][ss] *= pow((double)abs(is[sb][ss]), ((double)4.0/3.0));
+            xr[sb][ss] *= x_to_the_power_of_4_3rds((double)abs(is[sb][ss]));
             if (sign) xr[sb][ss] = -xr[sb][ss];
         }
     }
