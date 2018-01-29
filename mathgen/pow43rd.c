@@ -42,7 +42,7 @@ int main() {
         printf("%u ^ 1/3 = %.20f\n",i,pow(i,1.0 / 3));
 
     printf("------\n");
-    for (j=0;j < 10;j++) {
+    for (j=0;j < 16;j++) {
         unsigned int base;
         unsigned int basen;
         unsigned int basenn;
@@ -64,7 +64,7 @@ int main() {
         for (i=base;i <= basen;i++) {
             double x = pow(i,1.0 / 3) - j;
 
-            printf("%u ^ 1/3 - %u = %.20f\n",i,base,x);
+            printf("%u ^ 1/3 - %u (over %u/%u) = %.20f\n",i,base,i - base,basen - base,x);
 
             if (x < -(1e-11) || x > (1+(1e-11))) {
                 fprintf(stderr,"Precision error. x out of range.\n");
