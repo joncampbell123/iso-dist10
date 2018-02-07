@@ -1415,7 +1415,11 @@ static const double two_to_the_power_025_lookup[4] = {
 /* consolidate pow(2.0, x) calls below */
 static inline double two_to_the_power_025(int x) {
     /* pow(2.0, 0.25 * x) */
-    double r = ldexp(two_to_the_power_025_lookup[((unsigned int)x) & 3],(x - (x & 3)) / 4);
+    /* This code assumes your CPU supports signed arithmetic shift
+     * and that the sign bit is shifted in to the gap on the left (MSB).
+     *
+     * replace x >> 2 with (x - (x & 3)) / 4 if your CPU does NOT support signed arithmetic shift right in that way */
+    double r = ldexp(two_to_the_power_025_lookup[((unsigned int)x) & 3],x >> (signed int)2);
 
 #if 0 /* change to #if 1 to verify this optimization is correct */
     {
