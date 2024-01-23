@@ -189,7 +189,7 @@ double		   S_freq;
 
 /* Implementations */
 
-main (int argc, char **argv)  /* R.S. 7 channels for ML */
+int main (int argc, char **argv)  /* R.S. 7 channels for ML */
 {
 typedef long PCM[7][3][SBLIMIT];		
 	PCM  *pcm_sample;
@@ -320,7 +320,7 @@ typedef double VE[7][HAN_SIZE];
 	   do
 	   {
 		  printf ("Enter encoded file name <required>: ");
-		  gets (encoded_file_name);
+		  fgets (encoded_file_name,81,stdin);
 		  f = strlen(encoded_file_name)-4;	  /*cut off extension.8/11/92.sr*/
 		  if (encoded_file_name[0] == NULL_CHAR)
 			 printf ("Encoded file name is required. \n");
@@ -330,7 +330,7 @@ typedef double VE[7][HAN_SIZE];
 	   strcpy(encoded_file_name1, encoded_file_name);  /*8/11/92.sr*/
 	   strcpy(&encoded_file_name1[f], DFLT_OPEXT_DEC);	  /*.dec-extension.8/11/92.sr*/
 	   printf ("Enter MPEG decoded file name <%s>: ", encoded_file_name1);
-	   gets (decoded_file_name);
+	   fgets (decoded_file_name,81,stdin);
 	   if (decoded_file_name[0] == NULL_CHAR)
 		strcpy(decoded_file_name, encoded_file_name1);
 
@@ -342,7 +342,7 @@ typedef double VE[7][HAN_SIZE];
 	   strcpy(encoded_file_name1, encoded_file_name);
 	   strcpy(&encoded_file_name1[f], DFLT_IPEXT_EXT);	  /* .ext */
 	   printf (">>> Enter MPEG 2 decoded extension filename <%s>: ", encoded_file_name1);
-	   gets(ext_bitstream_name);
+	   fgets(ext_bitstream_name,81,stdin);
 	   if( ext_bitstream_name[0] == NULL_CHAR )
 		strcpy(ext_bitstream_name, encoded_file_name1);
 	   printf("Extension bitstream <%s> will be decoded \n",ext_bitstream_name);
@@ -351,7 +351,7 @@ typedef double VE[7][HAN_SIZE];
 	   { 	
 		printf("No extension bitstream <%s> present \n",ext_bitstream_name);
 		printf("Do you want to decode an MPEG 2 bitstream ? (<y>/n) : ");
-		gets(t);
+		fgets(t,81,stdin);
 	   	if (*t == 'N' || *t == 'n') 
 		{
 			mpeg = 1;
@@ -364,7 +364,7 @@ typedef double VE[7][HAN_SIZE];
 		}
 	   } 
 	   printf("Do you wish to write an AIFF compatible sound file ? (<y>/n) : ");
-	   gets(t);
+	   fgets(t,81,stdin);
 	   if (*t == 'N' || *t == 'n') need_aiff = FALSE;
 	   else                        need_aiff = TRUE;
 	   if (need_aiff)
@@ -372,13 +372,13 @@ typedef double VE[7][HAN_SIZE];
 	   else printf(">>> A non-headered PCM sound file will be written\n");
 	   
 	   printf("Do you want to print out all decoding information ? (y/<n>) :");
-	   gets(t);
+	   fgets(t,81,stdin);
 	   if( *t == 'y' || *t == 'Y' ) print_out = 1;
 	   else		      		print_out = 0;
 
 	   printf(
 		  "Do you wish to exit (last chance before decoding) ? (y/<n>) : ");
-	   gets(t);
+	   fgets(t,81,stdin);
 	   if (*t == 'y' || *t == 'Y') exit(0);
 	}
 
