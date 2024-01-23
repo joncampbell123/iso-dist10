@@ -171,6 +171,7 @@
 
 #include "common.h"
 #include "encoder.h"
+#include <stdint.h>
  
 /*=======================================================================\
 |                                                                       |
@@ -242,6 +243,14 @@ int i;
    }
    return(samples_read);
 }
+
+//! Byte swap short
+static int16_t swap_int16( int16_t val )
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
+
 
 /************************************************************************/
 /*
@@ -348,7 +357,7 @@ get_audio (
 
 	    for (i = 0; i < k; i++)
 		for (j = 0; j < 1152; j++)
-		    buffer[i][j] = insamp[k*j+i];
+		    buffer[i][j] = swap_int16(insamp[k*j+i]);
 	}
 	else 
 	{  /* layerII, stereo */
