@@ -1718,7 +1718,7 @@ typedef unsigned int SUB[14][3][12][SBLIMIT]; /* JMZ 08/03/1995 */
 typedef double SAM[12];
 typedef unsigned int LSB[12];
 
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
     double  sb_sample[14][3][12][SBLIMIT];	/* JMZ 08/03/1995 */
     JSBS    *j_sample;
@@ -2731,7 +2731,7 @@ void aiff_check (char *file_name, IFF_AIFF *pcm_aiff_data)
     if (strcmp (pcm_aiff_data->sampleType, IFF_ID_SSND) != 0)
     {
        printf ("Sound data is not PCM in \"%s\".\n", file_name);
-       exit (1);
+       //exit (1);
     }
 
     if (SmpFrqIndex ((long) pcm_aiff_data->sampleRate) < 0)

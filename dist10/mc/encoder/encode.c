@@ -171,6 +171,7 @@
 
 #include "common.h"
 #include "encoder.h"
+#include <stdint.h>
  
 /*=======================================================================\
 |                                                                       |
@@ -213,6 +214,7 @@ int i;
    if (init) {
         samples_to_read = num_samples;
         init = FALSE;
+        fseek(musicin, 12+18, SEEK_SET);
    }
    if (samples_to_read >= frame_size)
         samples_read = frame_size;
@@ -241,6 +243,14 @@ int i;
    }
    return(samples_read);
 }
+
+//! Byte swap short
+static int16_t swap_int16( int16_t val )
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
+
 
 /************************************************************************/
 /*
@@ -347,7 +357,7 @@ get_audio (
 
 	    for (i = 0; i < k; i++)
 		for (j = 0; j < 1152; j++)
-		    buffer[i][j] = insamp[k*j+i];
+		    buffer[i][j] = swap_int16(insamp[k*j+i]);
 	}
 	else 
 	{  /* layerII, stereo */
@@ -1039,7 +1049,7 @@ void window_subband (double **buffer, double *z, int k)
     typedef double XX[14][HAN_SIZE];	/* 08/03/1995 JMZ Multilingual */
     static XX *x;
     int i, j;
-    static off[14]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0};/* 08/03/1995 JMZ Multilingual */
+    static int off[14]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0};/* 08/03/1995 JMZ Multilingual */
     static char init = 0;
     static double *c;
  

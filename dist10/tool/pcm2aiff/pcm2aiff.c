@@ -59,7 +59,7 @@ char *	aiffFilenameSuffix	= ".aiff";
 
 /***************************************************************************/
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 char    file_name[50];
 int     i,j,c,disp,arg_count,config,aiff_mode;

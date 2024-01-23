@@ -13,7 +13,7 @@
 ############################################################################
 
 # MODE= -O -DUNIX
-MODE= -g -DUNIX
+MODE= -g -DUNIX -Wno-implicit-function-declaration -Wno-implicit-int
 #MODE= -DMSC60 -AH -Zi -Gt
 OBJ_SUFFIX=.o
 EXE_SUFFIX=

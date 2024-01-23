@@ -14,7 +14,7 @@
 ############################################################################
 
 # MODE= -O -DUNIX
-MODE= -g -DUNIX -Wall -Wextra -pedantic
+MODE= -g -DUNIX -Wall -Wextra -pedantic -Wno-implicit-function-declaration -Wno-implicit-int
 #MODE= -DMSC60 -AH -Zi -Gt
 OBJ_SUFFIX=.o
 EXE_SUFFIX=

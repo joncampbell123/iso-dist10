@@ -48,7 +48,7 @@
 # Compiler flags for UNIX
 CC		= cc
 #CFLAGS		= -DUNIX -g2 -DAugmentation_7ch -DPrintCRCDebug -DPrintBitDebug -DPRINTOUT -DDEBUG
-CFLAGS		= -DUNIX -g2 -DAugmentation_7ch
+CFLAGS		= -DUNIX -g2 -DAugmentation_7ch -Wno-implicit-function-declaration -Wno-implicit-int
 #CFLAGS		= -DUNIX -mips2 -O2
 LFLAGS		= -lm
 EXE_SUFFIX	=
