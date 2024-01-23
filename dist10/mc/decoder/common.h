@@ -200,6 +200,7 @@
 #ifdef  UNIX
 #include        <unistd.h>	 /* removed 92-08-05 shn */
 #include	<stdlib.h>       /* put in 92-08-05 shn */
+#include <stdint.h>
 #endif  /* UNIX */
 
 #ifdef  MACINTOSH
@@ -445,40 +446,40 @@ typedef struct  identifier_struct{
 
 typedef struct  ChunkHeader_struct {
 				ID      ckID;
-				long    ckSize;
+				int32_t    ckSize;
 } ChunkHeader;
 
 typedef struct  Chunk_struct {
 				ID      ckID;
-				long    ckSize;
+				int32_t    ckSize;
 				ID      formType;
 } Chunk;
 
 typedef struct  CommonChunk_struct {
 				ID              ckID;
-				long            ckSize;
-				short           numChannels;
-				unsigned long   numSampleFrames;
-				short           sampleSize;
+				int32_t            ckSize;
+				int16_t           numChannels;
+				uint32_t   numSampleFrames;
+				int16_t           sampleSize;
 				char            sampleRate[10];
 } CommonChunk;
 
 typedef struct  SoundDataChunk_struct {
 				ID              ckID;
-				long            ckSize;
-				unsigned long   offset;
-				unsigned long   blockSize;
+				int32_t            ckSize;
+				uint32_t   offset;
+				uint32_t   blockSize;
 } SoundDataChunk;
 
 typedef struct  blockAlign_struct {
-				unsigned long   offset;
-				unsigned long   blockSize;
+				uint32_t   offset;
+				uint32_t   blockSize;
 } blockAlign;
 
 typedef struct  IFF_AIFF_struct {
-				short           numChannels;
-                unsigned long   numSampleFrames;
-                short           sampleSize;
+				int16_t           numChannels;
+                uint32_t   numSampleFrames;
+                int16_t           sampleSize;
 		double          sampleRate;
                 ID/*char**/     sampleType;/*must be allocated 21.6.93 SR*/
                 blockAlign      blkAlgn;
