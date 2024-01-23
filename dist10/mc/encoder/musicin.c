@@ -1718,7 +1718,7 @@ typedef unsigned int SUB[14][3][12][SBLIMIT]; /* JMZ 08/03/1995 */
 typedef double SAM[12];
 typedef unsigned int LSB[12];
 
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
     double  sb_sample[14][3][12][SBLIMIT];	/* JMZ 08/03/1995 */
     JSBS    *j_sample;
