@@ -192,6 +192,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 /***********************************************************************
 *
@@ -762,6 +763,135 @@ int i;
 
 }
 
+//byteswap from stackoverflow.
+// https://stackoverflow.com/questions/2182002/how-to-convert-big-endian-to-little-endian-in-c-without-using-library-functions
+
+
+//! Byte swap unsigned short
+uint16_t swap_uint16( uint16_t val )
+{
+    return (val << 8) | (val >> 8 );
+}
+
+//! Byte swap short
+int16_t swap_int16( int16_t val )
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
+
+//! Byte swap unsigned int
+uint32_t swap_uint32( uint32_t val )
+{
+    val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF );
+    return (val << 16) | (val >> 16);
+}
+
+//! Byte swap int
+int32_t swap_int32( int32_t val )
+{
+    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF );
+    return (val << 16) | ((val >> 16) & 0xFFFF);
+}
+
+// from https://fossies.org/dox/sox-14.4.2/aiff_8c_source.html
+
+/*
+ * C O N V E R T   T O   I E E E   E X T E N D E D
+ */
+ 
+/* Copyright (C) 1988-1991 Apple Computer, Inc.
+ *
+ * All rights reserved.
+ *
+ * Warranty Information
+ *  Even though Apple has reviewed this software, Apple makes no warranty
+ *  or representation, either express or implied, with respect to this
+ *  software, its quality, accuracy, merchantability, or fitness for a
+ *  particular purpose.  As a result, this software is provided "as is,"
+ *  and you, its user, are assuming the entire risk as to its quality
+ *  and accuracy.
+ *
+ * Machine-independent I/O routines for IEEE floating-point numbers.
+ *
+ * NaN's and infinities are converted to HUGE_VAL, which
+ * happens to be infinity on IEEE machines.  Unfortunately, it is
+ * impossible to preserve NaN's in a machine-independent way.
+ * Infinities are, however, preserved on IEEE machines.
+ *
+ * These routines have been tested on the following machines:
+ *    Apple Macintosh, MPW 3.1 C compiler
+ *    Apple Macintosh, THINK C compiler
+ *    Silicon Graphics IRIS, MIPS compiler
+ *    Cray X/MP and Y/MP
+ *    Digital Equipment VAX
+ *
+ *
+ * Implemented by Malcolm Slaney and Ken Turkowski.
+ *
+ * Malcolm Slaney contributions during 1988-1990 include big- and little-
+ * endian file I/O, conversion to and from Motorola's extended 80-bit
+ * floating-point format, and conversions to and from IEEE single-
+ * precision floating-point format.
+ *
+ * In 1991, Ken Turkowski implemented the conversions to and from
+ * IEEE double-precision format, added more precision to the extended
+ * conversions, and accommodated conversions involving +/- infinity,
+ * NaN's, and denormalized numbers.
+ */
+
+#define FloatToUnsigned(f) ((uint32_t)(((int32_t)(f - 2147483648.0)) + 2147483647) + 1)
+
+
+static void ConvertToIeeeExtended(double num, char bytes[10])
+ {
+     int    sign;
+     int expon;
+     double fMant, fsMant;
+     uint32_t hiMant, loMant;
+  
+     if (num < 0) {
+         sign = 0x8000;
+         num *= -1;
+     } else {
+         sign = 0;
+     }
+  
+     if (num == 0) {
+         expon = 0; hiMant = 0; loMant = 0;
+     }
+     else {
+         fMant = frexp(num, &expon);
+         if ((expon > 16384) || !(fMant < 1)) {    /* Infinity or NaN */
+             expon = sign|0x7FFF; hiMant = 0; loMant = 0; /* infinity */
+         }
+         else {    /* Finite */
+             expon += 16382;
+             if (expon < 0) {    /* denormalized */
+                 fMant = ldexp(fMant, expon);
+                 expon = 0;
+             }
+             expon |= sign;
+             fMant = ldexp(fMant, 32);
+             fsMant = floor(fMant);
+             hiMant = FloatToUnsigned(fsMant);
+             fMant = ldexp(fMant - fsMant, 32);
+             fsMant = floor(fMant);
+             loMant = FloatToUnsigned(fsMant);
+         }
+     }
+  
+     bytes[0] = expon >> 8;
+     bytes[1] = expon;
+     bytes[2] = hiMant >> 24;
+     bytes[3] = hiMant >> 16;
+     bytes[4] = hiMant >> 8;
+     bytes[5] = hiMant;
+     bytes[6] = loMant >> 24;
+     bytes[7] = loMant >> 16;
+     bytes[8] = loMant >> 8;
+     bytes[9] = loMant;
+}
+
 /*****************************************************************************
 *
 *  Read Audio Interchange File Format (AIFF) headers.
@@ -1029,7 +1159,9 @@ SoundDataChunk  SndDChunk;
 	strcpy( CommChunk.ckID, IFF_ID_COMM);  /*7/7/93,SR,changed FormChunk to CommChunk*/
 
 
-   double_to_extended(&aiff_ptr->sampleRate, temp_sampleRate);
+ //  double_to_extended(&aiff_ptr->sampleRate, temp_sampleRate);
+  double samplerate = aiff_ptr->sampleRate;
+  ConvertToIeeeExtended(samplerate, temp_sampleRate);
 
    for (i = 0; i < sizeof(char[10]); i++)
       CommChunk.sampleRate[i] = temp_sampleRate[i];
@@ -1055,8 +1187,19 @@ SoundDataChunk  SndDChunk;
    if (fseek(file_ptr, 0, SEEK_SET) != 0)
       return(-1);
 
-   if (fwrite(&FormChunk, sizeof(Chunk), 1, file_ptr) != 1)
-      return(-1);
+/*   if (fwrite(&FormChunk, sizeof(Chunk), 1, file_ptr) != 1)
+      return(-1); */
+// NOTE - little endian writer only for now!
+
+ if (fwrite (&FormChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
+    return (-1);
+    int32_t swapped_chunk_size = swap_int32(FormChunk.ckSize+2);
+  if (fwrite (&swapped_chunk_size, sizeof (int32_t), 1, file_ptr) != 1)
+    return (-1);
+  if (fwrite (&FormChunk.formType, sizeof (ID), 1, file_ptr) != 1)
+    return (-1);
+
+
 /*
    if (fwrite(&SndDChunk, sizeof(SoundDataChunk), 1, file_ptr) != 1)
       return(-1);
@@ -1068,6 +1211,7 @@ SoundDataChunk  SndDChunk;
       return(-1);
 */
 
+/*
    if (fwrite(CommChunk.ckID, sizeof(ID), 1, file_ptr) != 1)
       return(-1);
 
@@ -1086,10 +1230,46 @@ SoundDataChunk  SndDChunk;
 
    if (fwrite(CommChunk.sampleRate, sizeof(char[10]), 1, file_ptr) != 1)
       return(-1);
+*/
 
-   /* 960815 FdB put the sound data chunk after the common chunk */
-   if (fwrite(&SndDChunk, sizeof(SoundDataChunk), 1, file_ptr) != 1)
-      return(-1);
+   
+ if (fwrite (CommChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
+    return (-1);
+    
+  int32_t comm_swapped_size = swap_int32(CommChunk.ckSize);
+  if (fwrite (&comm_swapped_size, sizeof (int32_t), 1, file_ptr) != 1)
+    return (-1);
+    
+  int16_t swapped_num_ch = swap_int16(CommChunk.numChannels);
+  if (fwrite (&swapped_num_ch, sizeof (int16_t), 1, file_ptr) != 1)
+    return (-1);
+    
+  int32_t swapped_num_sample_frames = swap_int32(CommChunk.numSampleFrames);
+  if (fwrite (&swapped_num_sample_frames, sizeof (uint32_t), 1,
+          file_ptr) != 1)
+    return (-1);
+    
+  int16_t swapped_sample_size = swap_int16(CommChunk.sampleSize);
+  if (fwrite (&swapped_sample_size, sizeof (int16_t), 1, file_ptr) != 1)
+    return (-1);
+    
+  if (fwrite (CommChunk.sampleRate, sizeof (uint8_t[10]), 1, file_ptr) != 1)
+    return (-1);
+
+  /* 960815 FdB put the sound data chunk after the common chunk */
+  if (fwrite (&SndDChunk.ckID, sizeof (ID), 1, file_ptr) != 1)
+    return (-1);
+    
+    int32_t swapped_ssnd_size = swap_int32(SndDChunk.ckSize);
+      if (fwrite (&swapped_ssnd_size, sizeof (int32_t), 1, file_ptr) != 1)
+    return (-1);
+    uint32_t swapped_snd_chunk_offset = swap_uint32(SndDChunk.offset);
+      if (fwrite (&swapped_snd_chunk_offset, sizeof (uint32_t), 1, file_ptr) != 1)
+    return (-1);
+    uint32_t swapped_snd_chunk_blocksize = swap_uint32(SndDChunk.blockSize);
+    if (fwrite (&swapped_snd_chunk_blocksize, sizeof (uint32_t), 1, file_ptr) != 1)
+    return (-1);
+    
 
    return(0);
 

@@ -2540,6 +2540,11 @@ int SubBandSynthesis_ml (double *bandPtr,
     return (clip);
 }
 
+//! Byte swap short
+static int16_t swap_int16( int16_t val ) 
+{
+    return (val << 8) | ((val >> 8) & 0xFF);
+}
 
 void out_fifo (long pcm_sample[7][3][SBLIMIT],
 	       int num,
@@ -2565,7 +2570,7 @@ static long k = 0;
 			fwrite (outsamp, 2, 1600, outFile);
 			k = 0;
 		    }
-		    outsamp[k++] = pcm_sample[l][i][j];
+		    outsamp[k++] = swap_int16(pcm_sample[l][i][j]);
 		}
 	    }
     else if (k > 0)
