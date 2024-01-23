@@ -2731,7 +2731,7 @@ void aiff_check (char *file_name, IFF_AIFF *pcm_aiff_data)
     if (strcmp (pcm_aiff_data->sampleType, IFF_ID_SSND) != 0)
     {
        printf ("Sound data is not PCM in \"%s\".\n", file_name);
-       exit (1);
+       //exit (1);
     }
 
     if (SmpFrqIndex ((long) pcm_aiff_data->sampleRate) < 0)

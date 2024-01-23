@@ -881,12 +881,181 @@ int i;
 
 }
 
+
+#define IFF_ID_FORM_INT 0x464f524d	/* "FORM" */
+#define IFF_ID_AIFF_INT 0x41494646	/* "AIFF" */
+#define IFF_ID_COMM_INT 0x434f4d4d	/* "COMM" */
+#define IFF_ID_SSND_INT 0x53534e44	/* "SSND" */
+#define IFF_ID_MPEG_INT  0x4d504547	/* "MPEG" */
+
+#define AIFF_FORM_HEADER_SIZE 12
+#define AIFF_SSND_HEADER_SIZE 16
+
+#define	kFloatLength	4
+#define	kDoubleLength	8
+#define	kExtendedLength	10
+
+# define FloatToUnsigned(f)	((unsigned long)(((long)((f) - 2147483648.0)) + 2147483647L + 1))
+# define UnsignedToFloat(u)	(((double)((long)((u) - 2147483647L - 1))) + 2147483648.0)
+
+static double ConvertFromIeeeExtended (char *bytes)
+{
+  double f;
+  long expon;
+  unsigned long hiMant, loMant;
+
+  expon = ((bytes[0] & 0x7F) << 8) | (bytes[1] & 0xFF);
+  hiMant = ((unsigned long) (bytes[2] & 0xFF) << 24)
+    | ((unsigned long) (bytes[3] & 0xFF) << 16) |
+    ((unsigned long) (bytes[4] & 0xFF) << 8) |
+    ((unsigned long) (bytes[5] & 0xFF));
+  loMant = ((unsigned long) (bytes[6] & 0xFF) << 24)
+    | ((unsigned long) (bytes[7] & 0xFF) << 16) |
+    ((unsigned long) (bytes[8] & 0xFF) << 8) |
+    ((unsigned long) (bytes[9] & 0xFF));
+
+  if (expon == 0 && hiMant == 0 && loMant == 0) {
+    f = 0;
+  } else {
+    if (expon == 0x7FFF) {	/* Infinity or NaN */
+      f = HUGE_VAL;
+    } else {
+      expon -= 16383;
+      f = ldexp (UnsignedToFloat (hiMant), expon -= 31);
+      f += ldexp (UnsignedToFloat (loMant), expon -= 32);
+    }
+  }
+
+  if (bytes[0] & 0x80)
+    return -f;
+  else
+    return f;
+}
+
+static void ReadBytes (FILE *fp, char *p, int n)
+{
+  while (!feof (fp) & (n-- > 0))
+    *p++ = getc (fp);
+}
+
+static int Read16BitsHighLow (FILE *fp)
+{
+  int first, second, result;
+
+  first = 0xff & getc (fp);
+  second = 0xff & getc (fp);
+
+  result = (first << 8) + second;
+  return (result);
+}
+
+static double ReadIeeeExtendedHighLow (FILE *fp)
+{
+  char bits[kExtendedLength];
+
+  ReadBytes (fp, bits, kExtendedLength);
+  return ConvertFromIeeeExtended (bits);
+}
+
+static int Read32BitsHighLow (FILE *fp)
+{
+  int first, second, result;
+
+  first = 0xffff & Read16BitsHighLow (fp);
+  second = 0xffff & Read16BitsHighLow (fp);
+
+  result = (first << 16) + second;
+  return (result);
+}
+
+
+
+
+/*****************************************************************************
+ *
+ *  Read Audio Interchange File Format (AIFF) headers.
+ *
+ *****************************************************************************/
+
+int aiff_read_headers (FILE * file_ptr, IFF_AIFF * aiff_ptr, int *byte_per_sample)
+{
+  int chunkSize, subSize, sound_position;
+  unsigned long offset;
+
+  if (fseek (file_ptr, 0, SEEK_SET) != 0)
+    return -1;
+
+  if (Read32BitsHighLow (file_ptr) != IFF_ID_FORM_INT)
+    return -1;
+
+  chunkSize = Read32BitsHighLow (file_ptr);
+
+  if (Read32BitsHighLow (file_ptr) != IFF_ID_AIFF_INT)
+    return -1;
+
+  sound_position = 0;
+  while (chunkSize > 0) {
+    chunkSize -= 4;
+    switch (Read32BitsHighLow (file_ptr)) {
+
+    case IFF_ID_COMM_INT:
+      chunkSize -= subSize = Read32BitsHighLow (file_ptr);
+      aiff_ptr->numChannels = Read16BitsHighLow (file_ptr);
+      subSize -= 2;
+      aiff_ptr->numSampleFrames = Read32BitsHighLow (file_ptr);
+      subSize -= 4;
+      aiff_ptr->sampleSize = Read16BitsHighLow (file_ptr);
+      subSize -= 2;
+      *byte_per_sample = ceil (aiff_ptr->sampleSize / 8);
+      aiff_ptr->sampleRate = (double)ReadIeeeExtendedHighLow (file_ptr);
+      subSize -= 10;
+      
+      printf("Num. ch: %i \n", aiff_ptr->numChannels);
+      printf("Sample frames %li \n", aiff_ptr->numSampleFrames);
+      printf("Sample size in bits %i \n", aiff_ptr->sampleSize);
+      printf("Sample rate %f \n", aiff_ptr->sampleRate);
+      
+      while (subSize > 0) {
+    getc (file_ptr);
+    subSize -= 1;
+      }
+      break;
+
+    case IFF_ID_SSND_INT:
+      //aiff_ptr->sampleType = IFF_ID_SSND; 
+      chunkSize -= subSize = Read32BitsHighLow (file_ptr);
+      //aiff_ptr->blkAlgn.offset = Read32BitsHighLow (file_ptr);
+      offset = Read32BitsHighLow (file_ptr);
+      subSize -= 4;
+      //aiff_ptr->blkAlgn.blockSize = Read32BitsHighLow (file_ptr);
+      Read32BitsHighLow (file_ptr);
+      subSize -= 4;
+      sound_position = ftell (file_ptr) + offset; //aiff_ptr->blkAlgn.offset;
+      if (fseek (file_ptr, (long) subSize, SEEK_CUR) != 0) {
+    printf("Seek failed! \n"); return -1; }
+      break;
+      
+    default:
+      chunkSize -= subSize = Read32BitsHighLow (file_ptr);
+      while (subSize > 0) {
+    getc (file_ptr);
+    subSize -= 1;
+      }
+      break;
+    }
+  }
+
+    return 0;
+  //return sound_position;
+}
+
+
 /*****************************************************************************
 *
 *  Read Audio Interchange File Format (AIFF) headers.
 *
 *****************************************************************************/
-
+#if 0
 int aiff_read_headers (FILE *file_ptr, IFF_AIFF *aiff_ptr, int *byte_per_sample)
 {
 
@@ -1065,6 +1234,7 @@ int aiff_read_headers (FILE *file_ptr, IFF_AIFF *aiff_ptr, int *byte_per_sample)
 */
 
     aiff_ptr->numChannels       = CommChunk.numChannels;
+    printf("num. ch. %i", aiff_ptr->numChannels);
     aiff_ptr->numSampleFrames   = CommChunk.numSampleFrames;
     aiff_ptr->sampleSize        = CommChunk.sampleSize;
     aiff_ptr->blkAlgn.offset    = SndDChunk.offset;
@@ -1073,7 +1243,7 @@ int aiff_read_headers (FILE *file_ptr, IFF_AIFF *aiff_ptr, int *byte_per_sample)
  
     return (0);
 }
-
+#endif // old aiff_read_headers
 
 /*****************************************************************************
 *

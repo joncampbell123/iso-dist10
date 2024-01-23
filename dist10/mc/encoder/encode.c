@@ -213,6 +213,7 @@ int i;
    if (init) {
         samples_to_read = num_samples;
         init = FALSE;
+        fseek(musicin, 12+18, SEEK_SET);
    }
    if (samples_to_read >= frame_size)
         samples_read = frame_size;
