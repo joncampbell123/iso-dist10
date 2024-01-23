@@ -1040,7 +1040,7 @@ void window_subband (double **buffer, double *z, int k)
     typedef double XX[14][HAN_SIZE];	/* 08/03/1995 JMZ Multilingual */
     static XX *x;
     int i, j;
-    static off[14]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0};/* 08/03/1995 JMZ Multilingual */
+    static int off[14]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0};/* 08/03/1995 JMZ Multilingual */
     static char init = 0;
     static double *c;
  
